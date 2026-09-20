@@ -44,6 +44,12 @@ const DRAFT_PATTERNS = [
   /\{\/\*\s*DRAFT:/i,
   /<!--\s*DRAFT:/i,
   /\[DRAFT:/i,
+  // Prose Claude wrote from general knowledge rather than from the operator's
+  // first-hand material. It carries no checked citations, so it is treated
+  // exactly like an empty section until a human has verified every claim and
+  // deliberately removed the marker.
+  /UNVERIFIED/,
+  /\{\/\*\s*VERIFY:/i,
   /\[\s*(?:1662|1928|1979|2019)\s+BCP:[^\]]*\]/i,
 ];
 
