@@ -4,6 +4,11 @@
   "compatibility_date": "2026-09-19",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
+    // This is a statically generated multi-page site, not an SPA. With
+    // "single-page-application" Cloudflare serves index.html with HTTP 200 for
+    // every unmatched path, so a mistyped or retired URL returns a soft 404 —
+    // Google indexes it as a duplicate of the homepage and the custom 404 page
+    // is never shown. "404-page" serves dist/404.html with a real 404 status.
+    "not_found_handling": "404-page"
   }
 }

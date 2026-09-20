@@ -1,3 +1,12 @@
+/* Self-hosted variable fonts. Fontsource ships woff2 with font-display: swap
+   and per-script unicode-range, so an English page fetches the latin subset
+   and nothing else — and no request leaves our origin. This replaces the
+   render-blocking fonts.googleapis.com stylesheet the port inherited. */
+@import "@fontsource-variable/eb-garamond/wght.css";
+@import "@fontsource-variable/eb-garamond/wght-italic.css";
+@import "@fontsource-variable/source-sans-3/wght.css";
+@import "@fontsource-variable/source-sans-3/wght-italic.css";
+
 @import "tailwindcss" source(none);
 @source "../../src";
 @import "tw-animate-css";
@@ -19,8 +28,8 @@
  */
 
 @theme inline {
-  --font-display: "EB Garamond", Georgia, serif;
-  --font-sans: "Source Sans 3", system-ui, sans-serif;
+  --font-display: "EB Garamond Variable", "EB Garamond", Georgia, serif;
+  --font-sans: "Source Sans 3 Variable", "Source Sans 3", system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

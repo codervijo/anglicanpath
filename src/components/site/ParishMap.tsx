@@ -1,3 +1,7 @@
+// Leaflet's stylesheet ships with the package and is bundled into this
+// island's chunk — it used to be a render-blocking <link> to unpkg.com in
+// BaseLayout, which cost every text page on the site.
+import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
 import type { Parish } from "../../data/parishes";
 

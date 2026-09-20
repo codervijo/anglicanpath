@@ -51,6 +51,15 @@ const ld = [
 
 const dateFmt = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
 const isDraft = d.status !== "published";
+
+// Sections the layout appends after the MDX body. render() only reports
+// headings it found in the markdown, so these are handed to the TOC by hand —
+// the ids must match the <section id="..."> values further down.
+const extraHeadings = [
+  ...(d.faq && d.faq.length > 0 ? [{ slug: "common-questions", text: "Common questions" }] : []),
+  { slug: "primary-sources", text: "Primary sources" },
+  ...(related.length > 0 ? [{ slug: "related-questions", text: "Related questions" }] : []),
+];
 ---
 <BaseLayout>
   <Fragment slot="head">
@@ -88,7 +97,7 @@ const isDraft = d.status !== "published";
 
     <div class="mx-auto grid max-w-6xl gap-12 px-5 py-12 sm:px-8 lg:grid-cols-[14rem_minmax(0,46rem)]">
       <aside>
-        <TableOfContents headings={headings} />
+        <TableOfContents headings={headings} extra={extraHeadings} />
       </aside>
 
       <article class="article-body min-w-0">

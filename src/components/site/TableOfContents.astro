@@ -10,9 +10,15 @@ import Icon from "../Icon.astro";
 
 interface Props {
   headings: { depth: number; slug: string; text: string }[];
+  /** Sections the layout adds after the body (sources, related, FAQ). They
+   *  aren't in the rendered markdown, so render() can't see them. */
+  extra?: { slug: string; text: string }[];
 }
-const { headings } = Astro.props;
-const items = headings.filter(h => h.depth === 2);
+const { headings, extra = [] } = Astro.props;
+const items = [
+  ...headings.filter(h => h.depth === 2).map(h => ({ slug: h.slug, text: h.text })),
+  ...extra,
+];
 ---
 {items.length > 1 && (
   <>
