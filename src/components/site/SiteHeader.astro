@@ -4,7 +4,7 @@
 import MobileNav from "./MobileNav.tsx";
 
 const nav = [
-  ["Paths", "/paths/from-evangelical/"],
+  ["Paths", "/paths/"],
   ["Learn", "/learn/"],
   ["Find a Parish", "/find-a-parish/"],
   ["Daily Office", "/office/"],
@@ -12,8 +12,11 @@ const nav = [
 ] as const;
 
 // Replaces TanStack Router's activeProps={{ className: "text-primary" }}.
+// The port pointed "Paths" straight at one path page because there was no
+// /paths/ index; there is one now, so the nav links to the index like every
+// other entry and the prefix match just works.
 const here = Astro.url.pathname;
-const isActive = (to: string) => to !== "/paths/from-evangelical/" && here.startsWith(to);
+const isActive = (to: string) => here.startsWith(to);
 ---
 <header class="site-header sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur">
   <div class="mx-auto grid h-18 max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 sm:px-8">

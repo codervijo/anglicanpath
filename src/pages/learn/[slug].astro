@@ -111,7 +111,12 @@ const extraHeadings = [
           />
         )}
 
-        <Content components={{ ComparisonTable }} />
+        {/* data-article-body marks the MDX body for the build gate, which
+            counts contextual internal links here and nowhere else — links in
+            the TOC, the Related block and the CTA don't count. */}
+        <div data-article-body>
+          <Content components={{ ComparisonTable }} />
+        </div>
 
         {d.faq && d.faq.length > 0 && (
           <section id="common-questions">

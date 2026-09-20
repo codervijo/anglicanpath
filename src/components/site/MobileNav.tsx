@@ -6,7 +6,7 @@ import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger 
 // SiteHeader). Mounted as an Astro island; the desktop nav stays server
 // rendered in SiteHeader.astro so its links are in the static HTML.
 const nav = [
-  ["Paths", "/paths/from-evangelical/"],
+  ["Paths", "/paths/"],
   ["Learn", "/learn/"],
   ["Find a Parish", "/find-a-parish/"],
   ["Daily Office", "/office/"],

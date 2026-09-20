@@ -16,7 +16,13 @@ export default defineConfig({
   trailingSlash: 'always',
   // MDX so an article body can drop in <ComparisonTable /> where it belongs.
   // Plain markdown syntax works unchanged inside .mdx — see CONTENT_README.md.
-  integrations: [mdx(), sitemap(), react()],
+  integrations: [
+    mdx(),
+    // content-audit.json is a build artifact consumed by
+    // scripts/check-content.mjs and deleted by it; it must never be listed.
+    sitemap({ filter: page => !page.endsWith('/content-audit.json') }),
+    react(),
+  ],
   output: 'static',
   // Tailwind v4 ships as a Vite plugin (no tailwind.config.js). The design
   // tokens live in src/styles/global.css (@theme inline), ported from the
