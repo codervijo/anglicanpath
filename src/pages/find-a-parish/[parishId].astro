@@ -1,0 +1,56 @@
+---
+// Ported from genai/src/routes/find-a-parish.$parishId.tsx.
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SeoHead from "../../components/SeoHead.astro";
+import Button from "../../components/ui/Button.astro";
+import Icon from "../../components/Icon.astro";
+import UpdateDialog from "../../components/parish/UpdateDialog.tsx";
+import { parishes } from "../../data/parishes";
+
+export const getStaticPaths: GetStaticPaths = () =>
+  parishes.map(parish => ({ params: { parishId: parish.id }, props: { parish } }));
+
+const { parish } = Astro.props;
+const title = `${parish.name} — Anglican Path`;
+const description = `Fictitious sample parish detail for ${parish.city}.`;
+---
+<BaseLayout>
+  <SeoHead slot="head" title={title} description={description} path={`/find-a-parish/${parish.id}/`} />
+  <main>
+    <div class="mx-auto max-w-5xl px-5 py-12 sm:px-8">
+      <a href="/find-a-parish/" class="text-sm text-primary">← Back to parish finder</a>
+      <div class="mt-8 border-y-2 border-primary py-10">
+        <span class="inline-block bg-primary/10 px-2 py-1 text-xs font-bold uppercase text-primary">Sample Data · Fictitious Parish</span>
+        <div class="mt-5 flex flex-wrap items-start justify-between gap-5">
+          <div>
+            <h1 class="font-display text-4xl font-semibold sm:text-6xl">{parish.name}</h1>
+            <p class="mt-4 flex items-center gap-2 text-muted-foreground"><Icon name="map-pin" class="size-4" />{parish.address}</p>
+          </div>
+          {parish.verified && (
+            <span class="flex items-center gap-2 text-sm font-semibold text-primary"><Icon name="check-circle-2" class="size-5" />Verified by parish</span>
+          )}
+        </div>
+      </div>
+      <div class="grid gap-12 py-12 md:grid-cols-[1fr_18rem]">
+        <div>
+          <h2 class="font-display text-3xl font-semibold">Service schedule</h2>
+          <ul class="mt-5 divide-y divide-border border-y border-border">
+            {parish.services.map(s => <li class="py-4">{s} · {parish.serviceType}</li>)}
+          </ul>
+          <h2 class="mt-12 font-display text-3xl font-semibold">About this parish</h2>
+          <p class="mt-4 leading-8 text-muted-foreground">[Fictitious parish description placeholder. Draft to be written.]</p>
+        </div>
+        <aside class="border-t border-border pt-5">
+          <dl class="space-y-4 text-sm">
+            <div><dt class="text-muted-foreground">Jurisdiction</dt><dd class="font-semibold">{parish.jurisdiction}</dd></div>
+            <div><dt class="text-muted-foreground">Prayer Book</dt><dd class="font-semibold">{parish.book}</dd></div>
+            <div><dt class="text-muted-foreground">Churchmanship</dt><dd class="font-semibold">{parish.churchmanship}</dd></div>
+          </dl>
+          <Button href={parish.website} variant="outline" class="mt-7 w-full">Parish website <Icon name="external-link" /></Button>
+          <UpdateDialog client:idle />
+        </aside>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

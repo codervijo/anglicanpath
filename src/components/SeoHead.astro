@@ -1,0 +1,39 @@
+---
+// Per-page SEO head block. Mirrors the tag set the scaffold pinned in
+// src/pages/index.astro (see src/__tests__/seo.test.js) so every ported page
+// emits the same baseline: title, description, canonical, OG, Twitter, icons.
+//
+// index.astro deliberately writes these tags out literally instead of using
+// this component — seo.test.js regexes the raw text of that one file.
+interface Props {
+  title: string;
+  description: string;
+  /** Path with leading AND trailing slash, e.g. "/learn/". */
+  path: string;
+  ogType?: string;
+}
+
+const site = "https://anglicanpath.org";
+const { title, description, path, ogType = "website" } = Astro.props;
+// Canonical MUST match the served URL incl. trailing slash (trailingSlash:
+// 'always' in astro.config.mjs). A no-slash canonical 308-redirects and
+// breaks indexing (CHECK_161).
+const canonical = `${site}${path}`;
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="alternate icon" href="/favicon.ico" type="image/x-icon" />
+
+<!-- Open Graph -->
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content="Anglican Path" />
+
+<!-- Twitter card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />

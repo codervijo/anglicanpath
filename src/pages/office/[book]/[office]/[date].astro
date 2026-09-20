@@ -1,0 +1,30 @@
+---
+// Ported from genai/src/routes/office.$book.$office.$date.tsx.
+//
+// TanStack resolved $date at request time. Astro's output is static, so the
+// date segment has to be enumerated. The prototype only ever links to the one
+// date its copy names (2026-09-18) — add real dates here once the Office data
+// in src/data/office.ts is backed by an actual lectionary.
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import SeoHead from "../../../../components/SeoHead.astro";
+import OfficeReader from "../../../../components/office/OfficeReader.tsx";
+
+// Kept inline: Astro hoists getStaticPaths into its own module scope, so it
+// cannot close over consts declared elsewhere in this frontmatter.
+export const getStaticPaths: GetStaticPaths = () =>
+  ["1928", "1662"].flatMap(book =>
+    ["morning", "evening"].flatMap(office =>
+      ["2026-09-18"].map(date => ({ params: { book, office, date } })),
+    ),
+  );
+
+const { book, office, date } = Astro.params as { book: string; office: string; date: string };
+const label = office === "evening" ? "Evening Prayer" : "Morning Prayer";
+const title = `${label} · ${book} BCP — Anglican Path`;
+const description = `A placeholder ${label} reading view for ${date}.`;
+---
+<BaseLayout>
+  <SeoHead slot="head" title={title} description={description} path={`/office/${book}/${office}/${date}/`} />
+  <OfficeReader book={book} office={office} date={date} client:load />
+</BaseLayout>

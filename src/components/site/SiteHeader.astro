@@ -1,0 +1,31 @@
+---
+// Ported from genai/src/components/site/site-shell.tsx (SiteHeader).
+// Desktop nav is server rendered; the mobile Sheet is a React island.
+import MobileNav from "./MobileNav.tsx";
+
+const nav = [
+  ["Paths", "/paths/from-evangelical/"],
+  ["Learn", "/learn/"],
+  ["Find a Parish", "/find-a-parish/"],
+  ["Daily Office", "/office/"],
+  ["About", "/about/"],
+] as const;
+
+// Replaces TanStack Router's activeProps={{ className: "text-primary" }}.
+const here = Astro.url.pathname;
+const isActive = (to: string) => to !== "/paths/from-evangelical/" && here.startsWith(to);
+---
+<header class="site-header sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur">
+  <div class="mx-auto grid h-18 max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 sm:px-8">
+    <a href="/" class="min-w-0 font-display text-2xl font-semibold text-foreground no-underline">Anglican <span class="text-primary">Path</span></a>
+    <nav class="hidden items-center gap-5 lg:flex xl:gap-7" aria-label="Main navigation">
+      {nav.map(([label, to]) => (
+        <a
+          href={to}
+          class:list={["text-sm font-medium transition-colors hover:text-foreground", isActive(to) ? "text-primary" : "text-muted-foreground"]}
+        >{label}</a>
+      ))}
+    </nav>
+    <MobileNav client:idle />
+  </div>
+</header>

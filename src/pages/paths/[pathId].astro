@@ -1,0 +1,113 @@
+---
+// Ported from genai/src/routes/paths.$pathId.tsx.
+//
+// The source kept per-path reading progress in React state backed by
+// localStorage. Here the step list is server rendered (its /learn/<slug>/
+// links matter for crawling) and the same localStorage behaviour is restored
+// by the script below.
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SeoHead from "../../components/SeoHead.astro";
+import Button from "../../components/ui/Button.astro";
+import Icon from "../../components/Icon.astro";
+import { pathSteps, paths } from "../../data/content";
+
+export const getStaticPaths: GetStaticPaths = () =>
+  paths.map(path => ({ params: { pathId: path.id }, props: { path } }));
+
+const { path } = Astro.props;
+const title = `${path.title} — Anglican Path`;
+const description = path.subtitle;
+---
+<BaseLayout>
+  <SeoHead slot="head" title={title} description={description} path={`/paths/${path.id}/`} />
+  <main data-path-id={path.id} data-step-count={pathSteps.length}>
+    <header class="border-b border-border bg-secondary/25">
+      <div class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-24">
+        <nav class="text-sm text-muted-foreground"><a href="/">Home</a> / Paths</nav>
+        <p class="mt-10 text-xs font-bold uppercase text-primary">A guided reading path</p>
+        <h1 class="mt-3 font-display text-5xl font-semibold sm:text-7xl">{path.title}</h1>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">{path.subtitle}</p>
+        <div class="mt-8 h-1 w-full bg-muted"><div class="h-full bg-primary transition-all" style="width:0%" data-progress-bar></div></div>
+        <p class="mt-2 text-sm text-muted-foreground"><span data-progress-count>0</span> of {pathSteps.length} readings marked complete</p>
+      </div>
+    </header>
+    <section class="mx-auto max-w-4xl px-5 py-14 sm:px-8">
+      <h2 class="font-display text-3xl font-semibold">Your path</h2>
+      <ol class="mt-8">
+        {pathSteps.map((step, i) => (
+          <li class="grid grid-cols-[auto_1fr_auto] items-start gap-4 border-t border-border py-6">
+            <button
+              type="button"
+              data-step-toggle={step.slug}
+              data-step-title={step.title}
+              aria-pressed="false"
+              aria-label={`Mark read: ${step.title}`}
+              class="mt-1 grid size-7 shrink-0 place-items-center rounded-full border border-border bg-background"
+            >
+              <Icon name="check" class="size-4" data-check hidden />
+            </button>
+            <div>
+              <span class="text-xs font-bold text-primary">STEP {i + 1}</span>
+              <h3 class="mt-1 font-display text-2xl font-semibold"><a href={`/learn/${step.slug}/`}>{step.title}</a></h3>
+              <p class="mt-2 text-sm text-muted-foreground"><Icon name="clock" class="mr-1 inline size-4" />{step.time} read · [Draft description]</p>
+            </div>
+            <span class="font-display text-3xl text-border">{String(i + 1).padStart(2, "0")}</span>
+          </li>
+        ))}
+        <li class="border-y-2 border-primary bg-secondary/30 p-7">
+          <p class="text-xs font-bold uppercase text-primary">Final step</p>
+          <h3 class="mt-2 font-display text-3xl font-semibold">Visit a parish</h3>
+          <p class="mt-3 text-muted-foreground">[Draft invitation to visit a traditional Anglican parish]</p>
+          <Button href="/find-a-parish/" class="mt-6">Find a parish</Button>
+        </li>
+      </ol>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector<HTMLElement>("main[data-path-id]");
+  if (root) {
+    const pathId = root.dataset.pathId!;
+    const total = Number(root.dataset.stepCount ?? 0);
+    const key = `path-${pathId}`;
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-step-toggle]"));
+
+    let done: string[] = [];
+    try {
+      done = JSON.parse(localStorage.getItem(key) ?? "[]");
+    } catch {
+      done = [];
+    }
+
+    const ON = ["border-primary", "bg-primary", "text-primary-foreground"];
+    const OFF = ["border-border", "bg-background"];
+
+    function render() {
+      for (const button of buttons) {
+        const slug = button.dataset.stepToggle!;
+        const isDone = done.includes(slug);
+        button.classList.remove(...(isDone ? OFF : ON));
+        button.classList.add(...(isDone ? ON : OFF));
+        button.setAttribute("aria-pressed", String(isDone));
+        button.setAttribute("aria-label", `${isDone ? "Mark unread" : "Mark read"}: ${button.dataset.stepTitle}`);
+        button.querySelector<HTMLElement>("[data-check]")!.hidden = !isDone;
+      }
+      const bar = root!.querySelector<HTMLElement>("[data-progress-bar]")!;
+      bar.style.width = `${total ? (done.length / total) * 100 : 0}%`;
+      root!.querySelector<HTMLElement>("[data-progress-count]")!.textContent = String(done.length);
+    }
+
+    for (const button of buttons) {
+      button.addEventListener("click", () => {
+        const slug = button.dataset.stepToggle!;
+        done = done.includes(slug) ? done.filter(x => x !== slug) : [...done, slug];
+        localStorage.setItem(key, JSON.stringify(done));
+        render();
+      });
+    }
+
+    render();
+  }
+</script>

@@ -1,0 +1,54 @@
+---
+// Ported from genai/src/routes/about.tsx.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SeoHead from "../components/SeoHead.astro";
+import PageIntro from "../components/site/PageIntro.astro";
+import Ornament from "../components/site/Ornament.astro";
+
+const title = "About Anglican Path";
+const description = "The mission, review process, and editorial standards behind Anglican Path.";
+const reviewers = ["[Priest Reviewer Name]", "[Clergy Advisor Name]", "[Scholar Reviewer Name]"];
+---
+<BaseLayout>
+  <SeoHead slot="head" title={title} description={description} path="/about/" />
+  <main>
+    <PageIntro eyebrow="About us" title="A clear and trustworthy path" description="[Draft mission summary for Anglican Path]" />
+    <div class="mx-auto max-w-4xl px-5 py-14 sm:px-8 sm:py-20">
+      <section class="prose-section">
+        <h2>Our mission</h2>
+        <p class="drop-cap">[Draft to be written]</p>
+        <p>[Draft to be written]</p>
+      </section>
+      <Ornament />
+      <section class="prose-section">
+        <h2>Statement of belief</h2>
+        <div class="border-l-2 border-primary pl-6">
+          <p>[Statement of belief placeholder]</p>
+        </div>
+      </section>
+      <section class="mt-16">
+        <p class="text-xs font-bold uppercase text-primary">Reviewed by</p>
+        <h2 class="mt-3 font-display text-4xl font-semibold">Advisory panel</h2>
+        <div class="mt-8 grid gap-px border border-border bg-border sm:grid-cols-3">
+          {reviewers.map((r, i) => (
+            <article class="bg-background p-6">
+              <div class="grid size-16 place-items-center rounded-full bg-muted font-display text-2xl text-muted-foreground">{i + 1}</div>
+              <h3 class="mt-5 font-display text-xl font-semibold">{r}</h3>
+              <p class="mt-2 text-sm text-muted-foreground">[Title and jurisdiction placeholder]</p>
+              <p class="mt-4 text-sm leading-6">[Reviewer biography placeholder]</p>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section class="prose-section mt-16 border-y border-border py-10">
+        <h2>Editorial standards</h2>
+        <p>[Draft editorial standards note]</p>
+        <ul>
+          <li>[Review process placeholder]</li>
+          <li>[Corrections policy placeholder]</li>
+          <li>[Source standards placeholder]</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

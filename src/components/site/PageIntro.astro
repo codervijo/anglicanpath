@@ -1,0 +1,16 @@
+---
+// Ported from genai/src/components/site/site-shell.tsx (PageIntro).
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description: string;
+}
+const { eyebrow, title, description } = Astro.props;
+---
+<header class="border-b border-border bg-secondary/25">
+  <div class="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
+    {eyebrow && <p class="text-xs font-bold uppercase text-primary">{eyebrow}</p>}
+    <h1 class="mt-3 max-w-4xl font-display text-4xl font-semibold leading-tight sm:text-6xl">{title}</h1>
+    <p class="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">{description}</p>
+  </div>
+</header>

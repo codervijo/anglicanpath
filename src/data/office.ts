@@ -1,0 +1,9 @@
+export const officeSections = [
+  { id: "opening", title: "Opening Sentences", rubric: "The Minister shall begin the Morning Prayer by reading one or more of the following Sentences of Scripture.", content: "[1928 BCP: Opening sentences text]", note: "[Draft explanation of the opening sentences]" },
+  { id: "confession", title: "Confession and Absolution", rubric: "Then the Minister shall say the following exhortation.", content: "[1928 BCP: General Confession and Absolution text]", note: "[Draft explanation of confession and absolution]" },
+  { id: "invitatory", title: "The Invitatory", rubric: "Then shall be said or sung the following.", versicles: [{ role: "Minister", text: "[1928 BCP: O Lord, open thou our lips.]" }, { role: "People", text: "[1928 BCP: Response placeholder]" }], content: "[1928 BCP: Venite, exultemus Domino text]", note: "[Draft explanation of the Invitatory]" },
+  { id: "psalms", title: "The Psalms", rubric: "The Psalm or Psalms appointed for the day shall follow.", verses: ["[Psalm verse 1 placeholder]", "[Psalm verse 2 placeholder]", "[Psalm verse 3 placeholder]"], note: "[Draft explanation of praying the Psalms]" },
+  { id: "lessons", title: "The Lessons", rubric: "Then shall be read the First Lesson, as appointed.", content: "[First Lesson: Isaiah placeholder]\n\n[Second Lesson: Gospel placeholder]", note: "[Draft explanation of the Scripture lessons]" },
+  { id: "canticles", title: "The Canticles", rubric: "After each Lesson shall be said or sung a Canticle.", content: "[1928 BCP: Te Deum laudamus text]", note: "[Draft explanation of the Canticles]" },
+  { id: "collects", title: "The Collects", rubric: "Then shall follow the Collect of the Day and other appointed Collects.", content: "[Collect for the Day placeholder]\n\n[Collect for Peace placeholder]\n\n[Collect for Grace placeholder]", note: "[Draft explanation of the Collects]" },
+];

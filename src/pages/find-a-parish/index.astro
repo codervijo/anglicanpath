@@ -1,0 +1,15 @@
+---
+// Ported from genai/src/routes/find-a-parish.tsx + the ParishFinder component.
+// The finder is genuinely app-like (text query, four filters, list/map toggle,
+// lazy Leaflet map), so it stays React and mounts as a client:load island.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SeoHead from "../../components/SeoHead.astro";
+import { ParishFinder } from "../../components/site/ParishFinder.tsx";
+
+const title = "Find a traditional Anglican parish — Anglican Path";
+const description = "Search a prototype directory of traditional Anglican parishes by jurisdiction, prayer book, churchmanship, and service type.";
+---
+<BaseLayout>
+  <SeoHead slot="head" title={title} description={description} path="/find-a-parish/" />
+  <ParishFinder client:load />
+</BaseLayout>

@@ -1,0 +1,64 @@
+---
+// Ported from genai/src/routes/learn.index.tsx.
+//
+// The source filtered the article grid with a React useState. Here the cards
+// are server rendered (so every /learn/<slug>/ link is in the static HTML —
+// this is the site's main internal-link hub) and the search box filters them
+// with a small progressive-enhancement script. Same behaviour, indexable.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SeoHead from "../../components/SeoHead.astro";
+import PageIntro from "../../components/site/PageIntro.astro";
+import ArticleCard from "../../components/site/ArticleCard.astro";
+import Icon from "../../components/Icon.astro";
+import { articles, topics } from "../../data/content";
+
+const title = "Learn about Anglicanism — Anglican Path";
+const description = "Placeholder guides to Anglican belief, worship, history, and practice.";
+---
+<BaseLayout>
+  <SeoHead slot="head" title={title} description={description} path="/learn/" />
+  <main>
+    <PageIntro eyebrow="The library" title="Learn the Anglican way" description="Browse placeholder guides organized for clear, careful reading." />
+    <div class="mx-auto max-w-7xl px-5 py-12 sm:px-8">
+      <div class="relative max-w-xl">
+        <Icon name="search" class="absolute left-3 top-3 size-4 text-muted-foreground" />
+        <input
+          id="article-search"
+          placeholder="Search articles"
+          aria-label="Search articles"
+          class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 pl-9 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:text-sm"
+        />
+      </div>
+      {topics.map(topic => {
+        const list = articles.filter(a => a.topic === topic);
+        if (!list.length) return null;
+        return (
+          <section class="py-12" data-topic>
+            <h2 class="border-b border-border pb-4 font-display text-3xl font-semibold">{topic}</h2>
+            <div class="mt-7 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+              {list.map(a => <ArticleCard article={a} />)}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const input = document.getElementById("article-search") as HTMLInputElement | null;
+  if (input) {
+    input.addEventListener("input", () => {
+      const q = input.value.toLowerCase();
+      document.querySelectorAll<HTMLElement>("[data-topic]").forEach(section => {
+        let shown = 0;
+        section.querySelectorAll<HTMLElement>("[data-article]").forEach(card => {
+          const hit = (card.dataset.search ?? "").includes(q);
+          card.hidden = !hit;
+          if (hit) shown += 1;
+        });
+        section.hidden = shown === 0;
+      });
+    });
+  }
+</script>
