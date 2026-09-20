@@ -1,0 +1,55 @@
+# lamill.toml — per-site config consumed by lamill (portfolio/ops) and rankmill (content/audits).
+# [content] = stable identity, authored by hand. [todo] = volatile work state.
+# rankmill output lives in sites/<domain>/rankmill-output/, not here.
+
+schema = "lamill-toml-v1"
+
+[deploy]
+platform = "cf-workers"
+production_branch = "main"
+custom_domains = [
+    "anglicanpath.org",
+]
+
+[index]
+indexnow_key = "fafe671d0784f0904f776d2cb9c698a9"
+indexnow_enabled = true
+
+[stack]
+framework = "astro"
+
+# Tracked todos for anglicanpath.org. status: "done" | "open".
+[[todo]]
+status = "open"
+priority = "medium"
+task = "Check SEO: GSC indexation + coverage (revisit ~2026-10-03)"
+
+[[todo]]
+status = "open"
+priority = "medium"
+task = "Verify GA4 is receiving data (check Realtime after first traffic)"
+
+[[todo]]
+status = "open"
+priority = "low"
+task = "Confirm GSC verification + sitemap submitted (re-run deploy if it timed out)"
+
+[content]
+# Declarative content identity for this site.
+# Authored by the human; consumed by rankmill to generate drafts and run audits.
+# Leave fields empty until you have a deliberate answer. Empty is better than wrong.
+site_type = "blog"
+primary_keyword = "anglican vs catholic"
+secondary_keywords = [
+    "is anglican protestant",
+    "church of england vs catholic",
+    "what is the anglican church",
+    "1928 book of common prayer",
+    "book of common prayer online",
+    "what to expect at your first anglican service",
+]
+icp = "A churchgoing Christian in North America, often in their 20s to 40s, who is drawn to liturgy, sacraments, and historic Christianity but unsure where Anglicanism fits. They typically come from an Evangelical or Reformed church, are weighing Rome or Orthodoxy, or are an Episcopalian unsettled by recent changes and looking for a traditional parish. They are searching questions like \"anglican vs catholic\" and \"is anglican protestant,\" and currently find answers mainly in Reddit threads. They want a fair explanation, primary sources, and a concrete next step: a nearby parish where the worship matches what they have read. A secondary ICP is the lay or clergy member of a small ACNA or Continuing parish who wants a traditional online Daily Office and trustworthy material to hand to newcomers."
+urgency_trigger = "Wanting a clear next step—find and visit a verified traditional Anglican parish now."
+penalty = "Remain confused or misinformed, continue relying on informal sources, and miss finding a liturgically traditional parish and authentic worship."
+tone = "fair, source-backed, openly traditional, clergy-reviewed"
+law = ""                  # statute or regulation if applicable, else empty

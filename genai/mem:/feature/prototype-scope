@@ -1,0 +1,6 @@
+---
+name: Prototype scope
+description: Static prototype constraints and content-handling requirements
+type: feature
+---
+Build static pages with reusable components for later Astro migration. Keep content in separate data files. Do not add a backend, authentication, or database. Never author theological, historical, or liturgical prose; use obvious placeholders. Clearly label all parish data as fictitious samples.

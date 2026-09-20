@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://anglicanpath.org/sitemap-index.xml

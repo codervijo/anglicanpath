@@ -1,0 +1,9 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArticleCard } from "@/components/site/article-card";
+import { PageIntro } from "@/components/site/site-shell";
+import { articles, topics } from "@/data/content";
+export const Route = createFileRoute("/learn/")({ head: () => ({ meta: [{title:"Learn about Anglicanism — Anglican Path"},{name:"description",content:"Placeholder guides to Anglican belief, worship, history, and practice."},{property:"og:title",content:"Learn about Anglicanism — Anglican Path"},{property:"og:description",content:"Placeholder guides to Anglican belief, worship, history, and practice."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}] }), component: LearnPage });
+function LearnPage(){const[q,setQ]=useState("");const filtered=useMemo(()=>articles.filter(a=>`${a.title} ${a.summary} ${a.topic}`.toLowerCase().includes(q.toLowerCase())),[q]);return <main><PageIntro eyebrow="The library" title="Learn the Anglican way" description="Browse placeholder guides organized for clear, careful reading."/><div className="mx-auto max-w-7xl px-5 py-12 sm:px-8"><div className="relative max-w-xl"><Search className="absolute left-3 top-3 size-4 text-muted-foreground"/><Input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search articles" className="pl-9"/></div>{topics.map(topic=>{const list=filtered.filter(a=>a.topic===topic);if(!list.length)return null;return <section key={topic} className="py-12"><h2 className="border-b border-border pb-4 font-display text-3xl font-semibold">{topic}</h2><div className="mt-7 grid gap-10 md:grid-cols-2 lg:grid-cols-3">{list.map(a=><ArticleCard key={a.slug} article={a}/>)}</div></section>})}</div></main>}
