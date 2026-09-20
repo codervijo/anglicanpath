@@ -1,0 +1,114 @@
+---
+// Mobile navigation drawer.
+//
+// This was a React island (Radix Sheet via src/components/ui/sheet.tsx) with
+// `client:idle`, which meant every page on the site — including a plain text
+// article with no other interactivity — downloaded ~211 KB of React runtime to
+// power a hamburger menu. Rewritten as server-rendered markup plus ~40 lines of
+// vanilla JS, so React now only loads on the two pages that genuinely need it
+// (the parish finder and the Daily Office reader).
+//
+// Behaviour is unchanged: the nav links are in the static HTML either way, the
+// panel slides in from the right, and it closes on Escape, on overlay click and
+// on navigation.
+import Icon from "../Icon.astro";
+
+const nav = [
+  ["Paths", "/paths/"],
+  ["Learn", "/learn/"],
+  ["Find a Parish", "/find-a-parish/"],
+  ["Daily Office", "/office/"],
+  ["About", "/about/"],
+] as const;
+---
+<div class="lg:hidden" data-mobile-nav>
+  <button
+    type="button"
+    data-nav-open
+    aria-label="Open navigation"
+    aria-expanded="false"
+    aria-controls="mobile-nav-panel"
+    class="inline-flex size-11 items-center justify-center rounded-md text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  >
+    <Icon name="menu" class="size-5" />
+  </button>
+
+  <div
+    data-nav-overlay
+    hidden
+    class="fixed inset-0 z-50 bg-foreground/40 opacity-0 transition-opacity duration-200"
+  ></div>
+
+  <div
+    id="mobile-nav-panel"
+    data-nav-panel
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-label="Site navigation"
+    class="fixed inset-y-0 right-0 z-50 w-[min(20rem,calc(100vw-2rem))] translate-x-full border-l border-border bg-background p-6 shadow-lg transition-transform duration-200"
+  >
+    <div class="flex items-center justify-between">
+      <p class="font-display text-2xl font-semibold">Anglican Path</p>
+      <button
+        type="button"
+        data-nav-close
+        aria-label="Close navigation"
+        class="inline-flex size-11 items-center justify-center rounded-md text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <Icon name="x" class="size-5" />
+      </button>
+    </div>
+    <nav class="mt-10 flex flex-col" aria-label="Mobile navigation">
+      {nav.map(([label, to]) => (
+        <a href={to} class="flex min-h-12 items-center border-b border-border py-3 font-display text-xl">{label}</a>
+      ))}
+    </nav>
+  </div>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-mobile-nav]");
+  if (root) {
+    const overlay = root.querySelector<HTMLElement>("[data-nav-overlay]")!;
+    const panel = root.querySelector<HTMLElement>("[data-nav-panel]")!;
+    const opener = root.querySelector<HTMLButtonElement>("[data-nav-open]")!;
+    const closer = root.querySelector<HTMLButtonElement>("[data-nav-close]")!;
+
+    function open() {
+      overlay.hidden = false;
+      panel.hidden = false;
+      // Next frame, so the transition has a start state to animate from.
+      requestAnimationFrame(() => {
+        overlay.classList.remove("opacity-0");
+        panel.classList.remove("translate-x-full");
+      });
+      opener.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+      closer.focus();
+      document.addEventListener("keydown", onKeydown);
+    }
+
+    function close() {
+      overlay.classList.add("opacity-0");
+      panel.classList.add("translate-x-full");
+      opener.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKeydown);
+      opener.focus();
+      // Keep them out of the tab order once the slide-out has finished.
+      window.setTimeout(() => {
+        overlay.hidden = true;
+        panel.hidden = true;
+      }, 200);
+    }
+
+    function onKeydown(event: KeyboardEvent) {
+      if (event.key === "Escape") close();
+    }
+
+    opener.addEventListener("click", open);
+    closer.addEventListener("click", close);
+    overlay.addEventListener("click", close);
+  }
+</script>

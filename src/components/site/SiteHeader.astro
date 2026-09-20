@@ -1,7 +1,8 @@
 ---
 // Ported from genai/src/components/site/site-shell.tsx (SiteHeader).
-// Desktop nav is server rendered; the mobile Sheet is a React island.
-import MobileNav from "./MobileNav.tsx";
+// Desktop nav is server rendered; so is the mobile drawer (see MobileNav.astro
+// for why it is no longer a React island).
+import MobileNav from "./MobileNav.astro";
 
 const nav = [
   ["Paths", "/paths/"],
@@ -29,6 +30,6 @@ const isActive = (to: string) => here.startsWith(to);
         >{label}</a>
       ))}
     </nav>
-    <MobileNav client:idle />
+    <MobileNav />
   </div>
 </header>
