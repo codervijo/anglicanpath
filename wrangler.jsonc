@@ -9,6 +9,12 @@
     // every unmatched path, so a mistyped or retired URL returns a soft 404 —
     // Google indexes it as a duplicate of the homepage and the custom 404 page
     // is never shown. "404-page" serves dist/404.html with a real 404 status.
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+    // Astro is configured trailingSlash: 'always' and builds directory-style
+    // output (dist/learn/index.html), so every canonical URL ends in a slash.
+    // "force-trailing-slash" makes Cloudflare agree: /learn 308-redirects to
+    // /learn/ instead of being served at both spellings. One URL per page,
+    // matching the <link rel="canonical"> and the sitemap <loc> (CHECK_161).
+    "html_handling": "force-trailing-slash"
   }
 }

@@ -33,11 +33,15 @@ per-stack work to the central builder at `~/work/projects/builder/`.
 ## Project structure
 
 - `src/` — application source
+- `src/content/` — the editorial content: `learn/*.mdx` (articles) and
+  `paths/*.mdx` (guided reading paths). Schemas in `src/content.config.ts`.
+  **How to write one: `CONTENT_README.md` at the repo root.**
 - `public/` — static assets copied to `dist/` at build (favicons, OG images, `_headers`)
 - `docs/` — PRD, Prompts log
 - `Makefile` — thin forwarder to `../Makefile`
 - `wrangler.jsonc` — Cloudflare deploy config
-- `scripts/` *(if present)* — ingester or build-time helpers
+- `scripts/check-content.mjs` — build-time content quality gate; runs as part
+  of `pnpm build` and fails the build on an under-cooked published page
 
 ## Building info
 
@@ -78,7 +82,7 @@ docker exec -w /usr/src/app <name> make test proj=anglicanpath.org
 ## Deployment info
 
 - **Platform:** Cloudflare Workers (Static Assets) — *not* Vercel.
-- **Config:** `wrangler.jsonc` at the repo root — points `assets.directory` at `./dist` and uses `not_found_handling: "single-page-application"` for SPA client-side routing.
+- **Config:** `wrangler.jsonc` at the repo root — points `assets.directory` at `./dist`, and sets `not_found_handling: "404-page"` (this is a static MPA, not an SPA; the SPA setting returned HTTP 200 + the homepage for every unmatched path, which Google indexes as a soft 404) and `html_handling: "force-trailing-slash"` to match Astro's `trailingSlash: 'always'`.
 - **Headers:** `public/_headers` — cache (`/assets/*` immutable, HTML no-cache) + security headers (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`). Vite copies `public/` into `dist/` at build, so the file ships with the assets.
 - **Build:** `pnpm build` → `dist/`. Wrangler picks up `dist/` via `wrangler.jsonc`.
 - **Deploy:** `wrangler deploy` (locally) or via Cloudflare's Git integration on push.
@@ -193,6 +197,14 @@ the bootstrap (this scaffold); v1.A is the first real shipped capability.
 
 - Stack: astro
 - **Package manager: pnpm only.** No `bun.lockb`, no `package-lock.json`, no `yarn.lock` — they cause CF Pages to pick the wrong manager and break the build. The `pnpm-lock.yaml` is the only lockfile that should ever be committed.
+- **Content is MDX in `src/content/`, never hardcoded in a page.** Articles and
+  paths are content-collection entries; `status: draft` / `review` entries are
+  rendered in `astro dev` only and are absent from a production build, so the
+  sitemap and every index are clean by construction. Don't add a `noindex`
+  path for them — see `src/lib/content.ts`.
+- **`pnpm build` runs the content gate** (`scripts/check-content.mjs`) after
+  `astro build`. `pnpm build:only` skips it and leaves `content-audit.json`
+  — which contains unpublished draft bodies — in `dist/`. Never publish that.
 - Build path: this project's `Makefile` → `../Makefile` → `~/work/projects/builder/`
 - Cloudflare deploy constraints: Vite ≥ 6, frozen-lockfile install, no `_redirects` SPA fallback (handled by `wrangler.jsonc`'s `not_found_handling` instead).
 - **Versioning**: two-level `vN` / `vN.X` — see Versioning section above and `sites/portfolio/AI_AGENTS.md` for the canonical statement.

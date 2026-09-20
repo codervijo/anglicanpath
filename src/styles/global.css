@@ -91,7 +91,11 @@
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(0.78 0.025 75);
-  --input: oklch(0.78 0.025 75);
+  /* --input is a UI component boundary, so WCAG 1.4.11 wants 3:1 against the
+     page. The ported value matched --border (1.86:1) and failed. --border
+     itself is left alone: section rules and table gridlines are decorative and
+     exempt, and darkening them would coarsen the whole page. */
+  --input: oklch(0.62 0.025 75);
   --ring: oklch(0.39 0.13 27);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -126,7 +130,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(0.4 0.018 65);
-  --input: oklch(0.4 0.018 65);
+  --input: oklch(0.52 0.018 65); /* 3.34:1 vs --background — see the light-mode note */
   --ring: oklch(0.68 0.15 29);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
@@ -207,7 +211,7 @@ html { scroll-behavior: smooth; }
 }
 [data-reading-theme="light"] { --background: oklch(0.995 0 0); --foreground: oklch(0.18 0.01 60); --card: oklch(0.995 0 0); --secondary: oklch(0.96 0.005 80); }
 [data-reading-theme="sepia"] { --background: oklch(0.94 0.035 83); --foreground: oklch(0.26 0.03 62); --card: oklch(0.94 0.035 83); --secondary: oklch(0.89 0.04 80); }
-[data-reading-theme="dark"] { --background: oklch(0.18 0.012 62); --foreground: oklch(0.9 0.018 82); --card: oklch(0.21 0.014 62); --secondary: oklch(0.25 0.015 62); --muted: oklch(0.27 0.014 62); --muted-foreground: oklch(0.72 0.018 78); --border: oklch(0.4 0.018 65); --input: oklch(0.4 0.018 65); --primary: oklch(0.68 0.15 29); --primary-foreground: oklch(0.16 0.01 60); }
+[data-reading-theme="dark"] { --background: oklch(0.18 0.012 62); --foreground: oklch(0.9 0.018 82); --card: oklch(0.21 0.014 62); --secondary: oklch(0.25 0.015 62); --muted: oklch(0.27 0.014 62); --muted-foreground: oklch(0.72 0.018 78); --border: oklch(0.4 0.018 65); --input: oklch(0.52 0.018 65); --primary: oklch(0.68 0.15 29); --primary-foreground: oklch(0.16 0.01 60); }
 
 @page {
   size: auto;
