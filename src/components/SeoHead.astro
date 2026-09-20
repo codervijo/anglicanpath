@@ -5,24 +5,44 @@
 //
 // index.astro deliberately writes these tags out literally instead of using
 // this component — seo.test.js regexes the raw text of that one file.
+import { SITE_NAME, SITE_URL } from "../lib/jsonld";
+
 interface Props {
   title: string;
   description: string;
   /** Path with leading AND trailing slash, e.g. "/learn/". */
   path: string;
   ogType?: string;
+  /** Site-relative path to a page-specific social image. Falls back to the
+   *  site-wide default placeholder in public/og-default.png. */
+  ogImage?: string;
+  /** Set on pages that are built but must stay out of the index (404, and
+   *  any draft page that ever gets built — see src/pages/learn/[slug].astro). */
+  noindex?: boolean;
+  /** ISO date string; emitted as article:modified_time on article pages. */
+  modifiedTime?: string;
 }
 
-const site = "https://anglicanpath.org";
-const { title, description, path, ogType = "website" } = Astro.props;
+const {
+  title,
+  description,
+  path,
+  ogType = "website",
+  ogImage = "/og-default.png",
+  noindex = false,
+  modifiedTime,
+} = Astro.props;
+
 // Canonical MUST match the served URL incl. trailing slash (trailingSlash:
 // 'always' in astro.config.mjs). A no-slash canonical 308-redirects and
 // breaks indexing (CHECK_161).
-const canonical = `${site}${path}`;
+const canonical = `${SITE_URL}${path}`;
+const ogImageUrl = `${SITE_URL}${ogImage}`;
 ---
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="alternate icon" href="/favicon.ico" type="image/x-icon" />
 
@@ -31,9 +51,15 @@ const canonical = `${site}${path}`;
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
-<meta property="og:site_name" content="Anglican Path" />
+<meta property="og:site_name" content={SITE_NAME} />
+<meta property="og:image" content={ogImageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={`${SITE_NAME} — ${title}`} />
+{modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
 
 <!-- Twitter card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />
