@@ -1,0 +1,49 @@
+---
+// Dev-only editorial panel. Never reaches a production build, because
+// draft/review pages aren't rendered there at all (see src/lib/content.ts).
+// It exists so the operator can see, on the page itself, exactly what Claude
+// proposed and what still needs first-hand material.
+import { learnHref } from "../../lib/content";
+
+interface ProposedLink {
+  slug: string;
+  anchorText: string;
+  placement: string;
+}
+interface Props {
+  status: "draft" | "review" | "published";
+  proposed: boolean;
+  proposedLinks: ProposedLink[];
+  targetKeyword: string;
+  secondaryKeywords: string[];
+}
+const { status, proposed, proposedLinks, targetKeyword, secondaryKeywords } = Astro.props;
+---
+<aside class="not-prose mb-12 border-2 border-dashed border-primary/60 bg-secondary/40 p-6 text-sm">
+  <p class="font-bold uppercase tracking-wide text-primary">
+    Editorial panel — status: {status}{proposed ? " · metadata is Claude-proposed, unreviewed" : ""}
+  </p>
+  <p class="mt-3 text-muted-foreground">
+    This panel is visible in <code>astro dev</code> only. Draft and review pages
+    are not built for production, so nothing below can reach a reader.
+  </p>
+
+  <p class="mt-5"><strong>Target keyword:</strong> {targetKeyword}</p>
+  {secondaryKeywords.length > 0 && (
+    <p class="mt-1"><strong>Secondary:</strong> {secondaryKeywords.join(" · ")}</p>
+  )}
+
+  {proposedLinks.length > 0 && (
+    <>
+      <p class="mt-5 font-semibold">Proposed internal links (for review — place these while writing)</p>
+      <ul class="mt-2 space-y-1">
+        {proposedLinks.map(l => (
+          <li>
+            <a href={learnHref(l.slug)} class="text-primary underline">{l.anchorText}</a>
+            <span class="text-muted-foreground"> — {l.placement}</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+</aside>

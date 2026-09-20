@@ -169,6 +169,33 @@ html { scroll-behavior: smooth; }
 .article-body li, .prose-section li { margin: .6rem 0; }
 .article-body a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 3px; }
 .citations { font-family: var(--font-display); font-size: 1rem; color: var(--color-muted-foreground); }
+.citations li { margin: .9rem 0; }
+.citations cite { font-style: italic; }
+.citation-author { font-variant: small-caps; letter-spacing: .02em; }
+.citation-note { font-size: .92em; }
+
+/* Definition-list FAQ. `dt` carries the question so FAQPage markup and the
+   visible text stay in step; answers that are still placeholders render as
+   .draft-cell rather than prose. */
+.article-body .faq { margin: 1.5rem 0; }
+.article-body .faq dt { margin: 1.8rem 0 .6rem; font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+.article-body .faq dd { margin: 0; font-family: var(--font-display); font-size: 1.15rem; line-height: 1.8; }
+
+/* Unwritten content. Deliberately loud: an unfilled slot must be impossible to
+   mistake for finished copy at a glance. The build gate blocks any published
+   page that still renders one. Contrast against --secondary clears WCAG AA in
+   both themes. */
+.draft-cell {
+  display: inline-block;
+  border: 1px dashed var(--color-primary);
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  padding: .15em .5em;
+  font-family: var(--font-sans);
+  font-size: .85rem;
+  font-style: normal;
+  line-height: 1.5;
+}
 [data-reading-theme="light"] { --background: oklch(0.995 0 0); --foreground: oklch(0.18 0.01 60); --card: oklch(0.995 0 0); --secondary: oklch(0.96 0.005 80); }
 [data-reading-theme="sepia"] { --background: oklch(0.94 0.035 83); --foreground: oklch(0.26 0.03 62); --card: oklch(0.94 0.035 83); --secondary: oklch(0.89 0.04 80); }
 [data-reading-theme="dark"] { --background: oklch(0.18 0.012 62); --foreground: oklch(0.9 0.018 82); --card: oklch(0.21 0.014 62); --secondary: oklch(0.25 0.015 62); --muted: oklch(0.27 0.014 62); --muted-foreground: oklch(0.72 0.018 78); --border: oklch(0.4 0.018 65); --input: oklch(0.4 0.018 65); --primary: oklch(0.68 0.15 29); --primary-foreground: oklch(0.16 0.01 60); }

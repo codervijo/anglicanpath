@@ -1,41 +1,91 @@
 ---
-// Ported from genai/src/routes/paths.$pathId.tsx.
+// One guided reading path at /paths/<pathId>/.
 //
-// The source kept per-path reading progress in React state backed by
-// localStorage. Here the step list is server rendered (its /learn/<slug>/
-// links matter for crawling) and the same localStorage behaviour is restored
-// by the script below.
-import type { GetStaticPaths } from "astro";
+// Ported from genai/src/routes/paths.$pathId.tsx, now driven by the `paths`
+// collection. The step list is server rendered (its /learn/<slug>/ links are
+// what makes the path useful for crawling); per-step "read" state is restored
+// client side from localStorage by the script below.
+//
+// A step whose article isn't in this build — a draft in production — renders as
+// plain text with a note, never as a link to a page that would 404.
+import { render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SeoHead from "../../components/SeoHead.astro";
+import Breadcrumbs from "../../components/site/Breadcrumbs.astro";
 import Button from "../../components/ui/Button.astro";
 import Icon from "../../components/Icon.astro";
-import { pathSteps, paths } from "../../data/content";
+import { learnHref, visibleLearn, visiblePaths } from "../../lib/content";
+import { readingTime } from "../../lib/taxonomy";
+import { breadcrumbLd, type Crumb } from "../../lib/jsonld";
 
-export const getStaticPaths: GetStaticPaths = () =>
-  paths.map(path => ({ params: { pathId: path.id }, props: { path } }));
+export async function getStaticPaths() {
+  const entries = await visiblePaths();
+  return entries.map(entry => ({ params: { pathId: entry.id }, props: { entry } }));
+}
 
-const { path } = Astro.props;
-const title = `${path.title} — Anglican Path`;
-const description = path.subtitle;
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+
+const articles = await visibleLearn();
+const byId = new Map(articles.map(a => [a.id, a]));
+
+const steps = d.steps.map(step => {
+  const article = byId.get(step.article);
+  return {
+    slug: step.article,
+    note: step.note,
+    title: article?.data.title ?? step.article,
+    minutes: article ? readingTime(article.body ?? "") : null,
+    available: Boolean(article),
+  };
+});
+
+const path = `/paths/${entry.id}/`;
+const crumbs: Crumb[] = [
+  { name: "Home", path: "/" },
+  { name: "Paths", path: "/paths/" },
+  { name: d.title, path },
+];
+const isDraft = d.status !== "published";
 ---
 <BaseLayout>
-  <SeoHead slot="head" title={title} description={description} path={`/paths/${path.id}/`} />
-  <main data-path-id={path.id} data-step-count={pathSteps.length}>
+  <Fragment slot="head">
+    <SeoHead
+      title={`${d.title} — Anglican Path`}
+      description={d.description}
+      path={path}
+      noindex={isDraft}
+      modifiedTime={d.updatedDate.toISOString()}
+    />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd(crumbs))} />
+  </Fragment>
+
+  <main data-path-id={entry.id} data-step-count={steps.length}>
     <header class="border-b border-border bg-secondary/25">
-      <div class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-24">
-        <nav class="text-sm text-muted-foreground"><a href="/">Home</a> / Paths</nav>
-        <p class="mt-10 text-xs font-bold uppercase text-primary">A guided reading path</p>
-        <h1 class="mt-3 font-display text-5xl font-semibold sm:text-7xl">{path.title}</h1>
-        <p class="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">{path.subtitle}</p>
-        <div class="mt-8 h-1 w-full bg-muted"><div class="h-full bg-primary transition-all" style="width:0%" data-progress-bar></div></div>
-        <p class="mt-2 text-sm text-muted-foreground"><span data-progress-count>0</span> of {pathSteps.length} readings marked complete</p>
+      <div class="mx-auto max-w-4xl px-5 py-14 sm:px-8 sm:py-20">
+        <Breadcrumbs crumbs={crumbs} />
+        <p class="mt-8 text-xs font-bold uppercase tracking-wide text-primary">A guided reading path</p>
+        <h1 class="mt-3 font-display text-5xl font-semibold sm:text-7xl">{d.title}</h1>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">{d.description}</p>
+        <p class="mt-4 max-w-2xl text-sm text-muted-foreground"><strong>Who this is for:</strong> {d.audience}</p>
+        <div class="mt-8 h-1 w-full bg-muted">
+          <div class="h-full bg-primary transition-all" style="width:0%" data-progress-bar></div>
+        </div>
+        <p class="mt-2 text-sm text-muted-foreground">
+          <span data-progress-count>0</span> of {steps.length} readings marked complete
+        </p>
       </div>
     </header>
+
+    <div class="mx-auto max-w-4xl px-5 pt-12 sm:px-8">
+      <div class="article-body"><Content /></div>
+    </div>
+
     <section class="mx-auto max-w-4xl px-5 py-14 sm:px-8">
       <h2 class="font-display text-3xl font-semibold">Your path</h2>
       <ol class="mt-8">
-        {pathSteps.map((step, i) => (
+        {steps.map((step, i) => (
           <li class="grid grid-cols-[auto_1fr_auto] items-start gap-4 border-t border-border py-6">
             <button
               type="button"
@@ -49,17 +99,30 @@ const description = path.subtitle;
             </button>
             <div>
               <span class="text-xs font-bold text-primary">STEP {i + 1}</span>
-              <h3 class="mt-1 font-display text-2xl font-semibold"><a href={`/learn/${step.slug}/`}>{step.title}</a></h3>
-              <p class="mt-2 text-sm text-muted-foreground"><Icon name="clock" class="mr-1 inline size-4" />{step.time} read · [Draft description]</p>
+              <h3 class="mt-1 font-display text-2xl font-semibold">
+                {step.available
+                  ? <a href={learnHref(step.slug)}>{step.title}</a>
+                  : <span>{step.title}</span>}
+              </h3>
+              <p class="mt-2 text-sm text-muted-foreground">
+                {step.minutes !== null && (
+                  <><Icon name="clock" class="mr-1 inline size-4" />{step.minutes} min read · </>
+                )}
+                {step.note}
+                {!step.available && <em> — not yet published.</em>}
+              </p>
             </div>
             <span class="font-display text-3xl text-border">{String(i + 1).padStart(2, "0")}</span>
           </li>
         ))}
         <li class="border-y-2 border-primary bg-secondary/30 p-7">
-          <p class="text-xs font-bold uppercase text-primary">Final step</p>
+          <p class="text-xs font-bold uppercase tracking-wide text-primary">Final step</p>
           <h3 class="mt-2 font-display text-3xl font-semibold">Visit a parish</h3>
-          <p class="mt-3 text-muted-foreground">[Draft invitation to visit a traditional Anglican parish]</p>
-          <Button href="/find-a-parish/" class="mt-6">Find a parish</Button>
+          <p class="mt-3 text-muted-foreground">
+            Reading can only take you so far. The path ends where the tradition is
+            actually practised — in a congregation, on a Sunday.
+          </p>
+          <Button href={d.cta.href} class="mt-6">{d.cta.label}</Button>
         </li>
       </ol>
     </section>

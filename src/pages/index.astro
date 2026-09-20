@@ -5,7 +5,10 @@ import Icon from "../components/Icon.astro";
 import Button from "../components/ui/Button.astro";
 import ArticleCard from "../components/site/ArticleCard.astro";
 import Ornament from "../components/site/Ornament.astro";
-import { articles, paths } from "../data/content";
+import { pathHref, visibleLearn, visiblePaths } from "../lib/content";
+
+const articles = await visibleLearn();
+const paths = await visiblePaths();
 
 const site = "https://anglicanpath.org";
 const title = "Anglican Path — Discover, Find, Pray";
@@ -97,15 +100,18 @@ const entries = [
           <h2 class="mt-3 font-display text-4xl font-semibold sm:text-5xl">Start your path</h2>
           <p class="mt-4 leading-7 text-muted-foreground">Choose the background that best describes you. Each path is a short sequence of readings.</p>
         </div>
-        <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {paths.map((path, i) => (
-            <a href={`/paths/${path.id}/`} class="border-t-2 border-primary bg-background p-5 shadow-sm transition-transform hover:-translate-y-1">
+            <a href={pathHref(path.id)} class="border-t-2 border-primary bg-background p-5 shadow-sm transition-transform hover:-translate-y-1">
               <span class="text-xs font-bold text-primary">0{i + 1}</span>
-              <h3 class="mt-10 font-display text-2xl font-semibold leading-tight">{path.title}</h3>
+              <h3 class="mt-10 font-display text-2xl font-semibold leading-tight">{path.data.title}</h3>
               <Icon name="arrow-right" class="mt-5 size-4 text-primary" />
             </a>
           ))}
         </div>
+        {paths.length === 0 && (
+          <p class="mt-10 text-muted-foreground">No reading paths are published yet.</p>
+        )}
       </div>
     </section>
 
@@ -130,6 +136,9 @@ const entries = [
         <div class="mt-10 grid gap-10 md:grid-cols-3">
           {articles.slice(0, 3).map(a => <ArticleCard article={a} />)}
         </div>
+        {articles.length === 0 && (
+          <p class="mt-10 text-muted-foreground">No articles are published yet.</p>
+        )}
       </div>
     </section>
 

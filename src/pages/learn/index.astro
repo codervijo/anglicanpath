@@ -10,15 +10,29 @@ import SeoHead from "../../components/SeoHead.astro";
 import PageIntro from "../../components/site/PageIntro.astro";
 import ArticleCard from "../../components/site/ArticleCard.astro";
 import Icon from "../../components/Icon.astro";
-import { articles, topics } from "../../data/content";
+import Breadcrumbs from "../../components/site/Breadcrumbs.astro";
+import { visibleLearn } from "../../lib/content";
+import { TOPIC_ORDER, topicLabel } from "../../lib/taxonomy";
+import { breadcrumbLd, type Crumb } from "../../lib/jsonld";
+
+const articles = await visibleLearn();
 
 const title = "Learn about Anglicanism — Anglican Path";
-const description = "Placeholder guides to Anglican belief, worship, history, and practice.";
+const description = "Source-backed guides to Anglican belief, worship, history and jurisdictions, grouped by topic and reviewed by named clergy.";
+
+const crumbs: Crumb[] = [
+  { name: "Home", path: "/" },
+  { name: "Learn", path: "/learn/" },
+];
 ---
 <BaseLayout>
-  <SeoHead slot="head" title={title} description={description} path="/learn/" />
+  <Fragment slot="head">
+    <SeoHead title={title} description={description} path="/learn/" />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd(crumbs))} />
+  </Fragment>
   <main>
-    <PageIntro eyebrow="The library" title="Learn the Anglican way" description="Browse placeholder guides organized for clear, careful reading." />
+    <PageIntro eyebrow="The library" title="Learn the Anglican way" description="Guides to Anglican belief, worship, history and jurisdictions — grouped by topic." />
+    <div class="mx-auto max-w-7xl px-5 pt-6 sm:px-8"><Breadcrumbs crumbs={crumbs} /></div>
     <div class="mx-auto max-w-7xl px-5 py-12 sm:px-8">
       <div class="relative max-w-xl">
         <Icon name="search" class="absolute left-3 top-3 size-4 text-muted-foreground" />
@@ -29,12 +43,17 @@ const description = "Placeholder guides to Anglican belief, worship, history, an
           class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 pl-9 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:text-sm"
         />
       </div>
-      {topics.map(topic => {
-        const list = articles.filter(a => a.topic === topic);
+      {articles.length === 0 && (
+        <p class="py-16 text-lg text-muted-foreground">
+          No articles are published yet. Drafts are visible when running <code>astro dev</code>.
+        </p>
+      )}
+      {TOPIC_ORDER.map(topic => {
+        const list = articles.filter(a => a.data.topic === topic);
         if (!list.length) return null;
         return (
           <section class="py-12" data-topic>
-            <h2 class="border-b border-border pb-4 font-display text-3xl font-semibold">{topic}</h2>
+            <h2 id={topic} class="scroll-mt-28 border-b border-border pb-4 font-display text-3xl font-semibold">{topicLabel(topic)}</h2>
             <div class="mt-7 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
               {list.map(a => <ArticleCard article={a} />)}
             </div>

@@ -1,0 +1,33 @@
+---
+// "Primary sources", rendered from the `sources` array in frontmatter. Nothing
+// here is generated: if the operator hasn't added a source, the section says so
+// rather than inventing a citation — and the build gate refuses to publish a
+// page whose sources array is empty.
+interface Source {
+  title: string;
+  author?: string;
+  url?: string;
+  note?: string;
+}
+interface Props {
+  sources: Source[];
+}
+const { sources } = Astro.props;
+---
+<section id="primary-sources">
+  <h2>Primary sources</h2>
+  {sources.length === 0 ? (
+    <p class="draft-cell">[DRAFT: first-hand material needed — primary and scholarly sources for every claim in this article]</p>
+  ) : (
+    <ol class="citations">
+      {sources.map(s => (
+        <li>
+          {s.author && <span class="citation-author">{s.author}. </span>}
+          <cite>{s.title}</cite>
+          {s.url && <>. <a href={s.url} rel="noopener">{s.url}</a></>}
+          {s.note && <span class="citation-note"> — {s.note}</span>}
+        </li>
+      ))}
+    </ol>
+  )}
+</section>

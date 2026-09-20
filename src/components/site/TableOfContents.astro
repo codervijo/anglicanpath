@@ -1,0 +1,44 @@
+---
+// Auto-generated from the article's rendered H2s (Astro's render() returns the
+// heading list, so this stays in sync with the body automatically — there is no
+// hand-maintained section array).
+//
+// Sticky on desktop; a collapsed <details> on mobile. One nav element is
+// rendered per breakpoint, each with a distinct aria-label, so screen readers
+// don't announce a duplicate landmark.
+import Icon from "../Icon.astro";
+
+interface Props {
+  headings: { depth: number; slug: string; text: string }[];
+}
+const { headings } = Astro.props;
+const items = headings.filter(h => h.depth === 2);
+---
+{items.length > 1 && (
+  <>
+    <details class="border-y border-border py-3 lg:hidden">
+      <summary class="flex cursor-pointer items-center justify-between font-semibold">
+        On this page
+        <Icon name="chevron-down" class="size-4" />
+      </summary>
+      <nav aria-label="On this page" class="mt-4">
+        <ol class="space-y-3 text-sm text-muted-foreground">
+          {items.map(h => (
+            <li><a href={`#${h.slug}`} class="hover:text-primary hover:underline">{h.text}</a></li>
+          ))}
+        </ol>
+      </nav>
+    </details>
+
+    <div class="sticky top-28 hidden lg:block">
+      <p class="text-xs font-bold uppercase tracking-wide text-primary">On this page</p>
+      <nav aria-label="On this page (sidebar)" class="mt-4">
+        <ol class="space-y-3 text-sm text-muted-foreground">
+          {items.map(h => (
+            <li><a href={`#${h.slug}`} class="hover:text-primary hover:underline">{h.text}</a></li>
+          ))}
+        </ol>
+      </nav>
+    </div>
+  </>
+)}

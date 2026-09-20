@@ -15,12 +15,13 @@
     "test:seo": "vitest run src/__tests__/seo.test.js"
   },
   "dependencies": {
-    "astro": "^5.0.0",
+    "@astrojs/mdx": "^4.3.14",
     "@astrojs/react": "^4.2.0",
     "@astrojs/sitemap": "^3.2.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
     "@tailwindcss/vite": "^4.2.1",
+    "astro": "^5.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "leaflet": "^1.9.4",

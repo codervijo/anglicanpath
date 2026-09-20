@@ -1,0 +1,25 @@
+---
+// Home › Learn › Topic › Article. The visible trail and the BreadcrumbList
+// JSON-LD are built from the same array (see the page's `crumbs`), so they
+// can't drift apart.
+import type { Crumb } from "../../lib/jsonld";
+
+interface Props {
+  crumbs: Crumb[];
+  class?: string;
+}
+const { crumbs, class: className = "" } = Astro.props;
+const last = crumbs.length - 1;
+---
+<nav aria-label="Breadcrumb" class={`text-sm text-muted-foreground ${className}`}>
+  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1">
+    {crumbs.map((c, i) => (
+      <li class="flex items-center gap-x-2">
+        {i === last
+          ? <span aria-current="page" class="text-foreground">{c.name}</span>
+          : <a href={c.path} class="hover:text-primary hover:underline">{c.name}</a>}
+        {i !== last && <span aria-hidden="true" class="text-border">›</span>}
+      </li>
+    ))}
+  </ol>
+</nav>

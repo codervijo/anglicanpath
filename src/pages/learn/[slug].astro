@@ -1,111 +1,145 @@
 ---
-// Ported from genai/src/routes/learn.$slug.tsx.
-import type { GetStaticPaths } from "astro";
+// One article at /learn/<slug>/.
+//
+// Draft and review entries are rendered in `astro dev` only — see
+// src/lib/content.ts for why that beats building them with a noindex tag.
+import { render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SeoHead from "../../components/SeoHead.astro";
+import Breadcrumbs from "../../components/site/Breadcrumbs.astro";
+import TableOfContents from "../../components/site/TableOfContents.astro";
+import SourcesList from "../../components/site/SourcesList.astro";
+import DraftNotice from "../../components/site/DraftNotice.astro";
+import ComparisonTable from "../../components/site/ComparisonTable.astro";
 import Button from "../../components/ui/Button.astro";
-import Icon from "../../components/Icon.astro";
-import { articleSections, articles } from "../../data/content";
+import { learnHref, resolveLearn, visibleLearn, SHOW_UNPUBLISHED } from "../../lib/content";
+import { topicLabel, readingTime } from "../../lib/taxonomy";
+import { articleLd, breadcrumbLd, faqLd, isAnsweredFaq, type Crumb } from "../../lib/jsonld";
 
-export const getStaticPaths: GetStaticPaths = () =>
-  articles.map(article => ({ params: { slug: article.slug }, props: { article } }));
+export async function getStaticPaths() {
+  const entries = await visibleLearn();
+  return entries.map(entry => ({ params: { slug: entry.id }, props: { entry } }));
+}
 
-const { article } = Astro.props;
-const title = `${article.title} — Anglican Path`;
-const description = article.summary;
-const ld = {
-  "@context": "https://schema.org",
-  "@type": "Article",
-  headline: article.title,
-  description: article.summary,
-  author: { "@type": "Organization", name: "Anglican Path" },
-};
-const related = articles.filter(x => x.slug !== article.slug).slice(0, 3);
-const comparisonRows = ["Authority", "Liturgy", "Sacraments", "Church order"];
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content, headings } = await render(entry);
+
+const path = learnHref(entry.id);
+const related = await resolveLearn(d.related);
+const minutes = readingTime(entry.body ?? "");
+
+const crumbs: Crumb[] = [
+  { name: "Home", path: "/" },
+  { name: "Learn", path: "/learn/" },
+  { name: topicLabel(d.topic), path: `/learn/#${d.topic}` },
+  { name: d.title, path },
+];
+
+const ld = [
+  articleLd({
+    headline: d.title,
+    description: d.description,
+    path,
+    updatedDate: d.updatedDate,
+    reviewer: d.reviewer,
+    reviewedDate: d.reviewedDate,
+  }),
+  breadcrumbLd(crumbs),
+  faqLd(d.faq),
+].filter(Boolean);
+
+const dateFmt = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
+const isDraft = d.status !== "published";
 ---
 <BaseLayout>
   <Fragment slot="head">
-    <SeoHead title={title} description={description} path={`/learn/${article.slug}/`} ogType="article" />
-    <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+    <SeoHead
+      title={`${d.title} — Anglican Path`}
+      description={d.description}
+      path={path}
+      ogType="article"
+      noindex={isDraft}
+      modifiedTime={d.updatedDate.toISOString()}
+    />
+    {ld.map(block => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
   </Fragment>
 
   <main>
     <header class="border-b border-border">
-      <div class="mx-auto max-w-5xl px-5 py-14 sm:px-8 sm:py-20">
-        <nav aria-label="Breadcrumb" class="text-sm text-muted-foreground">
-          <a href="/">Home</a> / <a href="/learn/">Learn</a> / <span>{article.title}</span>
-        </nav>
-        <p class="mt-10 text-xs font-bold uppercase text-primary">{article.topic}</p>
-        <h1 class="mt-3 max-w-4xl font-display text-4xl font-semibold leading-tight sm:text-6xl">{article.title}</h1>
-        <p class="mt-6 max-w-3xl text-xl leading-8 text-muted-foreground">{article.summary}</p>
-        <p class="mt-7 text-sm text-muted-foreground">Reviewed by {article.reviewedBy} · {article.reviewedDate} · {article.readingTime} read</p>
+      <div class="mx-auto max-w-5xl px-5 py-12 sm:px-8 sm:py-16">
+        <Breadcrumbs crumbs={crumbs} />
+        <p class="mt-8 text-xs font-bold uppercase tracking-wide text-primary">{topicLabel(d.topic)}</p>
+        <h1 class="mt-3 max-w-4xl font-display text-4xl font-semibold leading-tight sm:text-6xl">{d.title}</h1>
+        <p class="mt-6 max-w-3xl text-xl leading-8 text-muted-foreground">{d.description}</p>
+        <p class="mt-7 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+          {d.reviewer && d.reviewedDate && (
+            <>
+              <span>Reviewed by {d.reviewer.name}, {d.reviewer.title} on {dateFmt.format(d.reviewedDate)}</span>
+              <span aria-hidden="true" class="text-border">·</span>
+            </>
+          )}
+          <span>Updated {dateFmt.format(d.updatedDate)}</span>
+          <span aria-hidden="true" class="text-border">·</span>
+          <span>{minutes} min read</span>
+        </p>
       </div>
     </header>
 
     <div class="mx-auto grid max-w-6xl gap-12 px-5 py-12 sm:px-8 lg:grid-cols-[14rem_minmax(0,46rem)]">
       <aside>
-        <details class="border-y border-border py-3 lg:hidden">
-          <summary class="flex cursor-pointer items-center justify-between font-semibold">On this page <Icon name="chevron-down" class="size-4" /></summary>
-          <nav class="mt-4">
-            <ol class="space-y-3 text-sm text-muted-foreground">
-              {articleSections.map(s => <li><a href={`#${s.id}`} class="hover:text-primary">{s.title}</a></li>)}
-            </ol>
-          </nav>
-        </details>
-        <div class="sticky top-28 hidden lg:block">
-          <p class="text-xs font-bold uppercase text-primary">On this page</p>
-          <nav class="mt-4">
-            <ol class="space-y-3 text-sm text-muted-foreground">
-              {articleSections.map(s => <li><a href={`#${s.id}`} class="hover:text-primary">{s.title}</a></li>)}
-            </ol>
-          </nav>
-        </div>
+        <TableOfContents headings={headings} />
       </aside>
 
       <article class="article-body min-w-0">
-        <section id="overview">
-          <h2>At a glance</h2>
-          <p class="drop-cap">[Draft to be written]</p>
-          <p>[Draft to be written]</p>
-        </section>
-        <section id="common-ground">
-          <h2>Common ground</h2>
-          <p>[Draft to be written]</p>
-          <blockquote>“[Primary source quotation placeholder]”<cite>— [Source citation placeholder]</cite></blockquote>
-        </section>
-        <section id="differences">
-          <h2>Important differences</h2>
-          <p>[Draft to be written]</p>
-          <aside class="pullquote">“[Pull quote placeholder]”</aside>
-        </section>
-        <section id="comparison">
-          <h2>Side-by-side comparison</h2>
-          <div class="overflow-x-auto">
-            <table>
-              <thead><tr><th>Question</th><th>Anglican</th><th>Roman Catholic</th></tr></thead>
-              <tbody>
-                {comparisonRows.map(x => <tr><th>{x}</th><td>[Draft comparison]</td><td>[Draft comparison]</td></tr>)}
-              </tbody>
-            </table>
-          </div>
-        </section>
-        <section id="sources">
-          <h2>Primary sources</h2>
-          <ol class="citations">
-            <li>[Primary source citation placeholder]</li>
-            <li>[Scholarly citation placeholder]</li>
-          </ol>
-        </section>
-        <section>
-          <h2>Related questions</h2>
-          <ul>
-            {related.map(x => <li><a href={`/learn/${x.slug}/`}>{x.title}</a></li>)}
-          </ul>
-        </section>
+        {SHOW_UNPUBLISHED && isDraft && (
+          <DraftNotice
+            status={d.status}
+            proposed={d.proposed}
+            proposedLinks={d.proposedLinks}
+            targetKeyword={d.targetKeyword}
+            secondaryKeywords={d.secondaryKeywords}
+          />
+        )}
+
+        <Content components={{ ComparisonTable }} />
+
+        {d.faq && d.faq.length > 0 && (
+          <section id="common-questions">
+            <h2>Common questions</h2>
+            <dl class="faq">
+              {d.faq.map(f => (
+                <>
+                  <dt>{f.q}</dt>
+                  <dd>
+                    {isAnsweredFaq(f.a)
+                      ? f.a
+                      : <span class="draft-cell">[DRAFT: first-hand material needed — a direct two-to-three sentence answer]</span>}
+                  </dd>
+                </>
+              ))}
+            </dl>
+          </section>
+        )}
+
+        <SourcesList sources={d.sources} />
+
+        {related.length > 0 && (
+          <section id="related-questions">
+            <h2>Related questions</h2>
+            <ul>
+              {related.map(r => <li><a href={learnHref(r.id)}>{r.data.title}</a></li>)}
+            </ul>
+          </section>
+        )}
+
         <aside class="mt-14 border-y-2 border-primary bg-secondary/30 p-7">
           <h2 class="mt-0">Find a parish near you</h2>
-          <p>Visit a traditional Anglican parish and continue the conversation in person.</p>
-          <Button href="/find-a-parish/">Search sample parishes</Button>
+          <p>
+            Reading is a beginning. The next step is to worship with a congregation —
+            search parishes by jurisdiction, prayer book, and service time.
+          </p>
+          <Button href="/find-a-parish/">Find a parish near you</Button>
         </aside>
       </article>
     </div>

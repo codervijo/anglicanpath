@@ -1,0 +1,46 @@
+---
+// Side-by-side comparison table, embedded from an .mdx article body:
+//
+//   <ComparisonTable
+//     columns={["Anglican", "Roman Catholic"]}
+//     rows={[{ question: "Authority", cells: [null, null] }]} />
+//
+// A `null` cell renders as a marked placeholder, so an unfinished table is
+// visible on the page AND caught by the build gate (scripts/check-content.mjs
+// fails a published page that still contains one).
+interface Row {
+  question: string;
+  cells: (string | null)[];
+}
+interface Props {
+  caption?: string;
+  columns: string[];
+  rows: Row[];
+}
+const { caption, columns, rows } = Astro.props;
+---
+<figure class="my-10">
+  <div class="overflow-x-auto">
+    <table>
+      {caption && <caption class="mb-3 text-left text-sm text-muted-foreground">{caption}</caption>}
+      <thead>
+        <tr>
+          <th scope="col">Question</th>
+          {columns.map(c => <th scope="col">{c}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(r => (
+          <tr>
+            <th scope="row">{r.question}</th>
+            {r.cells.map(cell => (
+              <td>
+                {cell ?? <span class="draft-cell">[DRAFT: first-hand material needed]</span>}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</figure>

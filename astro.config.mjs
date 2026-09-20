@@ -1,6 +1,7 @@
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -13,7 +14,9 @@ export default defineConfig({
   // back "URL is unknown to Google". Make it explicit so every page's
   // canonical matches its served URL. Enforced by CHECK_161.
   trailingSlash: 'always',
-  integrations: [sitemap(), react()],
+  // MDX so an article body can drop in <ComparisonTable /> where it belongs.
+  // Plain markdown syntax works unchanged inside .mdx — see CONTENT_README.md.
+  integrations: [mdx(), sitemap(), react()],
   output: 'static',
   // Tailwind v4 ships as a Vite plugin (no tailwind.config.js). The design
   // tokens live in src/styles/global.css (@theme inline), ported from the

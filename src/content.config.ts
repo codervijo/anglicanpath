@@ -40,7 +40,7 @@ const proposedLink = z.object({
 });
 
 const learn = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/learn' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/learn' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -77,7 +77,7 @@ const learn = defineCollection({
 });
 
 const paths = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/paths' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/paths' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
