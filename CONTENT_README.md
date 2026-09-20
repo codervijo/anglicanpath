@@ -184,7 +184,24 @@ pnpm dev                          # drafts visible, editorial panel on
 pnpm build                        # astro build + the content gate
 pnpm check:content                # the gate alone, against the last build
 pnpm test                         # vitest
+pnpm clean:cache                  # see below
 ```
+
+### When `astro dev` throws and `astro build` doesn't
+
+Vite pre-bundles dependencies into `node_modules/.vite/deps` and bakes the
+resolved paths in. Swap a dependency's version and that cache still points at
+the old copy, so the dev server imports a package that no longer matches the
+installed Astro — typically surfacing as a `TypeError` about a missing export
+(`renderStreaming is not a function`, say) with a stack trace naming a version
+you no longer have installed. The production build doesn't use that cache, so
+it keeps working, which makes the failure look stranger than it is.
+
+```bash
+pnpm clean:cache && pnpm dev
+```
+
+Do this after any dependency change.
 
 Or without the shell:
 
