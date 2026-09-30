@@ -158,6 +158,103 @@ parish finder — is built, so it needs the rule stated separately.
   all; the finder that lists them is noindex and says on the page that none
   of them exists.
 
-## 5. Tracked refactors
+## 5. Draft preview — ADR (v2.A)
+
+**Status:** accepted 2026-09-30. Implementation is v2.B (operator only) and
+v2.C (invited clergy reviewers). `docs/prd.md` § 5.
+
+### Context
+
+Unpublished pages exist only in `astro dev` (§ 2.4), so the operator can
+read a draft only at a laptop running the container, and a reviewer cannot
+read one at all. The operator wants drafts readable in a browser anywhere,
+by themselves and by invited clergy — without weakening the guarantee that
+production contains no draft text.
+
+### Decision
+
+1. **A second, private deployment — not a mode of the public one.** A Worker
+   named `anglicanpath-drafts`, defined as a Wrangler environment
+   (`env.drafts` in `wrangler.jsonc`) and connected through Workers Builds to
+   the same repository and branch (`main`). Every push builds both Workers.
+   Workers Builds requires the dashboard Worker name to match the Wrangler
+   `name` unless it is `<name>-<env>` deployed with `--env <env>`, which is
+   why the name is fixed rather than chosen.
+2. **One build flag, `SHOW_DRAFTS=1`,** set as a build variable on the drafts
+   Worker only. `SHOW_UNPUBLISHED` in `src/lib/content.ts` becomes
+   `DEV || SHOW_DRAFTS` and is the only switch: every place that today reads
+   `import.meta.env.DEV` directly (the parish detail pages and finder links,
+   `<Draft>` briefs, `<Proposed>` frames) moves onto it. The preview therefore
+   shows exactly what `astro dev` shows — draft and fact-checked articles and
+   paths, sample parish pages, dev-only placeholder copy, briefs and frames.
+3. **Hostname `drafts.anglicanpath.org`** as a Custom Domain of the drafts
+   Worker. `workers_dev: false` and `preview_urls: false` in `env.drafts`, so
+   it has no other public address.
+4. **Cloudflare Access at Worker level** (Workers & Pages →
+   `anglicanpath-drafts` → Access), not a hostname application. Worker-level
+   Access covers every hostname the Worker has, including `workers.dev` and
+   preview URLs; a hostname application would leave those open. Login is
+   Access's email one-time PIN — no identity provider, no accounts for
+   reviewers. Policy: Allow, by email address. v2.B: operator only. v2.C:
+   add each invited reviewer.
+5. **Crawler defence in depth, in the drafts build only** — each of these is
+   sufficient if Access were ever misconfigured:
+   - every page's `<SeoHead>` emits `noindex`;
+   - `dist/_headers` gains `/*  X-Robots-Tag: noindex, nofollow`;
+   - `robots.txt` is `User-agent: *` / `Disallow: /`;
+   - no sitemap (`@astrojs/sitemap` is not registered).
+6. **The gate splits by build.** In a drafts build, completeness checks
+   (placeholders, `proposed`, sources, lengths) are advisory and the
+   leak-safety checks are fatal: every HTML page noindex, the header rule
+   present, robots disallows all, no sitemap. In a production build the gate
+   is unchanged, plus one new fatal check: the build must not be a drafts
+   build.
+7. **A deploy guard, because the two builds share a `dist/`.** The drafts
+   build writes a marker, `dist/.drafts-build`. `scripts/guard-deploy.mjs
+   <production|drafts>` refuses to deploy a drafts `dist/` to production or a
+   production `dist/` to drafts; it prefixes the deploy command in both
+   Workers' build settings and in the local `pnpm` deploy scripts. This is
+   the one failure the rest of the design does not cover — a local
+   `SHOW_DRAFTS=1 pnpm build` followed by a plain `wrangler deploy`.
+
+### Alternatives rejected
+
+- **Drafts under `/drafts/` on the live site** (operator decision): draft text
+  would ship in the public artifact, protected only by a path rule.
+- **A client-side toggle (cookie or query string):** the text is in the
+  public HTML; hiding it in the browser protects nothing.
+- **Preview URLs of the production Worker:** they are built from
+  non-production branches, not `main`, and share the production Worker's
+  build settings, so drafts would need a second branch kept in step and a
+  per-branch flag.
+- **Hostname-only Access:** leaves `workers.dev` and preview URLs unprotected.
+
+### Consequences
+
+- Production is unchanged; § 2.4 "unbuilt, not noindexed" still holds.
+- Two builds per push. Workers Builds minutes and the Zero Trust free-plan
+  seat allowance were not verified from Cloudflare's own docs on
+  2026-09-30 — check both in the dashboard before v2.C adds reviewers.
+- Reviewers on the preview see what the operator sees, including `<Draft>`
+  briefs and the "Proposed copy — awaiting operator review" frames.
+- Canonical tags in the preview point at production URLs that may not
+  exist; harmless while every preview page is noindex and behind Access.
+
+### Operator steps (v2.B and v2.C — dashboard only, not scriptable here)
+
+1. After the first `wrangler deploy --env drafts` creates the Worker:
+   Workers & Pages → `anglicanpath-drafts` → Settings → Build — connect the
+   repository, branch `main`, build variable `SHOW_DRAFTS=1`, deploy command
+   `node scripts/guard-deploy.mjs drafts && npx wrangler deploy --env drafts`.
+2. Workers & Pages → `anglicanpath-drafts` → Settings → Domains & Routes —
+   add Custom Domain `drafts.anglicanpath.org`.
+3. Workers & Pages → `anglicanpath-drafts` → Access — enable, one-time PIN,
+   Allow policy with the operator's email (v2.B), reviewers' emails (v2.C).
+4. Workers & Pages → `anglicanpath` → Settings → Build — change the deploy
+   command to `node scripts/guard-deploy.mjs production && npx wrangler deploy`.
+
+Start at https://dash.cloudflare.com/?to=/:account/workers-and-pages.
+
+## 6. Tracked refactors
 
 - *(none open)*
