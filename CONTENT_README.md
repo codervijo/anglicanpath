@@ -40,7 +40,10 @@ you.
 
 ## Draft → review → published
 
-`status:` in frontmatter controls everything.
+This is the **page lifecycle** — the states a page moves through and what
+each means for the live site. `status:` in frontmatter controls it.
+The design rationale, the full state diagram and the planned four-state
+version live in `docs/architecture.md` § 2.
 
 | status | Built in `astro dev` | Built for production | In the sitemap | Gate |
 |---|---|---|---|---|

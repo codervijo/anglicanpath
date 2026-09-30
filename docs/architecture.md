@@ -24,11 +24,19 @@ writing a page — it links here for the reasoning.
 | `src/pages/content-audit.json.ts` | Build-time feed for the gate; deleted after use |
 | `scripts/check-content.mjs` | The content quality gate |
 
-## 2. Editorial workflow
+## 2. Page lifecycle
 
-The publication lifecycle of an article. This is the load-bearing
-design decision on the content side: it determines what can reach a
-reader and what blocks a deploy.
+**Page lifecycle** — the named states a page moves through from first
+draft to clergy-endorsed, the conditions for each transition, and what
+each state means for the production build. It is the load-bearing design
+decision on the content side: it determines what can reach a reader and
+what blocks a deploy. Where this document, `CONTENT_README.md` or a
+commit message says "page lifecycle", it means this section.
+
+> **Status: `draft` / `review` / `published` is what ships today.** The
+> four-state lifecycle below is the v1.C target (see `docs/prd.md` § 5)
+> and is not yet implemented. Until it lands, a named reviewer gates
+> publication rather than the `reviewed` state.
 
 ### 2.1 States
 

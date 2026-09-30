@@ -202,6 +202,10 @@ Track this project's progress in `docs/prd.md` against this taxonomy.
 
 - Stack: astro
 - **Package manager: pnpm only.** No `bun.lockb`, no `package-lock.json`, no `yarn.lock` — they cause CF Pages to pick the wrong manager and break the build. The `pnpm-lock.yaml` is the only lockfile that should ever be committed.
+- **Page lifecycle** — the states a page moves through (`draft` → … →
+  live) and what each means for the production build. Defined in
+  `docs/architecture.md` § 2; the practical steps are in
+  `CONTENT_README.md`. Use that term for it.
 - **Content is MDX in `src/content/`, never hardcoded in a page.** Articles and
   paths are content-collection entries; `status: draft` / `review` entries are
   rendered in `astro dev` only and are absent from a production build, so the
