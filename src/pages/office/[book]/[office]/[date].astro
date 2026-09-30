@@ -9,6 +9,8 @@ import type { GetStaticPaths } from "astro";
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
 import SeoHead from "../../../../components/SeoHead.astro";
 import OfficeReader from "../../../../components/office/OfficeReader.tsx";
+import { officeSections } from "../../../../data/office";
+import { hasSourcePlaceholder } from "../../../../lib/placeholders.js";
 
 // Kept inline: Astro hoists getStaticPaths into its own module scope, so it
 // cannot close over consts declared elsewhere in this frontmatter.
@@ -23,8 +25,11 @@ const { book, office, date } = Astro.params as { book: string; office: string; d
 const label = office === "evening" ? "Evening Prayer" : "Morning Prayer";
 const title = `${label} · ${book} BCP — Anglican Path`;
 const description = `A placeholder ${label} reading view for ${date}.`;
+// The office text is still bracketed placeholders, so these pages stay out of
+// the index. They flip automatically once src/data/office.ts holds real text.
+const noindex = hasSourcePlaceholder(JSON.stringify(officeSections));
 ---
 <BaseLayout>
-  <SeoHead slot="head" title={title} description={description} path={`/office/${book}/${office}/${date}/`} />
+  <SeoHead slot="head" title={title} description={description} path={`/office/${book}/${office}/${date}/`} noindex={noindex} />
   <OfficeReader book={book} office={office} date={date} client:load />
 </BaseLayout>
