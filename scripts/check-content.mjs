@@ -22,7 +22,16 @@
  *   - a related/path/step reference to a slug that doesn't exist
  *   - no link to anglican-vs-catholic or what-is-the-anglican-church
  *
- * Reaching "reviewed" additionally requires a named reviewer and reviewedDate.
+ * Reaching "reviewed" additionally requires a named reviewer and reviewedDate,
+ * and that reviewer's `articlesReviewed` must list the article (and only
+ * articles they have actually signed).
+ *
+ * Site-wide, on every built page regardless of collection (docs/architecture.md § 5):
+ *   - an INDEXABLE page (no robots noindex) that still shows placeholder text
+ *     fails the build — placeholder pages must be noindex
+ *   - every sitemap URL must be a built, indexable page
+ * Editorial pages (`pages` collection) may only be `status: published` once
+ * no <Draft>, placeholder or <Proposed> block remains in the source.
  *
  * Reads dist/content-audit.json (see src/pages/content-audit.json.ts) for
  * frontmatter and raw bodies, and the built HTML in dist/ for anything that
@@ -32,6 +41,7 @@
 import { readFile, readdir, stat, unlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, relative, posix } from 'node:path';
+import { findHtmlPlaceholder, findSourcePlaceholder, isNoindexHtml } from '../src/lib/placeholders.js';
 
 const DIST = 'dist';
 const AUDIT = join(DIST, 'content-audit.json');
@@ -121,6 +131,8 @@ async function main() {
   );
 
   const learnIds = new Set(audit.learn.map(e => e.id));
+  const learnById = new Map(audit.learn.map(e => [e.id, e]));
+  const reviewerById = new Map(audit.reviewers.map(r => [r.id, r]));
   const pathIds = new Set(audit.paths.map(e => e.id));
 
   let checked = 0;
@@ -141,8 +153,14 @@ async function main() {
     // Theological endorsement gates `reviewed`, NOT publication. A page may go
     // live once it is accurate; a named priest signs off afterwards.
     if (d.status === 'reviewed') {
-      if (!d.reviewer || !d.reviewer.name) {
+      if (!d.reviewer || !d.reviewer.id) {
         problem(true, where, 'status is "reviewed" but there is no named clergy reviewer');
+      } else {
+        const r = reviewerById.get(d.reviewer.id);
+        if (!r) problem(true, where, `reviewer "${d.reviewer.id}" is not in the reviewers collection`);
+        else if (!r.data.articlesReviewed.includes(entry.id)) {
+          problem(true, where, `reviewer "${d.reviewer.id}" does not list this article in articlesReviewed`);
+        }
       }
       if (!d.reviewedDate) {
         problem(true, where, 'status is "reviewed" but there is no reviewedDate');
@@ -232,6 +250,62 @@ async function main() {
     }
   }
 
+  // ---- reviewers: a listed article must really carry that signature -------
+  for (const r of audit.reviewers) {
+    const where = `reviewers/${r.id}`;
+    for (const slug of r.data.articlesReviewed) {
+      const a = learnById.get(slug);
+      if (!a) {
+        problem(true, where, `articlesReviewed lists unknown article "${slug}"`);
+      } else if (a.data.status !== 'reviewed' || a.data.reviewer?.id !== r.id) {
+        problem(true, where, `articlesReviewed lists "${slug}", but that article is not status: reviewed by ${r.id}`);
+      }
+    }
+  }
+
+  // ---- editorial pages (/about/, /about/review/) ----------------------------
+  for (const entry of audit.pages) {
+    const d = entry.data;
+    const live = d.status === 'published';
+    const where = `pages/${entry.id}`;
+    checked += 1;
+    const hit = findSourcePlaceholder(entry.body);
+    if (hit) problem(live, where, `still contains a placeholder (${hit}) — keep status: draft until it is written`);
+    if (/<Proposed\b/.test(entry.body)) {
+      problem(live, where, 'still contains <Proposed> copy — approve it and remove the wrapper before publishing');
+    }
+    if (d.title.length > TITLE_MAX) problem(live, where, `title is ${d.title.length} chars (max ${TITLE_MAX})`);
+    if (d.description.length < DESC_MIN || d.description.length > DESC_MAX) {
+      problem(live, where, `description is ${d.description.length} chars (want ${DESC_MIN}-${DESC_MAX})`);
+    }
+  }
+
+  // ---- site-wide: placeholder pages must be noindex and out of the sitemap -
+  const noindexed = [];
+  const indexable = new Set();
+  for (const rel of [...distFiles].filter(f => f.endsWith('.html'))) {
+    const html = await readFile(join(DIST, rel), 'utf8');
+    const url = '/' + rel.replace(/index\.html$/, '');
+    if (isNoindexHtml(html)) {
+      noindexed.push(url);
+      continue;
+    }
+    indexable.add(url);
+    const hit = findHtmlPlaceholder(html);
+    if (hit) {
+      failures.push({ where: url, message: `indexable page shows placeholder text "${hit}" — make it noindex or fill it` });
+    }
+  }
+  for (const f of [...distFiles].filter(f => /^sitemap-\d+\.xml$/.test(f))) {
+    const xml = await readFile(join(DIST, f), 'utf8');
+    for (const [, loc] of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
+      const url = new URL(loc).pathname;
+      if (!indexable.has(url)) {
+        failures.push({ where: f, message: `sitemap lists ${url}, which is not a built, indexable page` });
+      }
+    }
+  }
+
   // ---- site-wide broken internal links ------------------------------------
   const htmlFiles = [...distFiles].filter(f => f.endsWith('.html'));
   const broken = new Map();
@@ -252,6 +326,8 @@ async function main() {
 
   // ---- report -------------------------------------------------------------
   console.log(`\ncheck:content — ${checked} entries, ${htmlFiles.length} built pages\n`);
+  for (const url of noindexed.sort()) console.log(`${yellow('↷')} ${dim('noindex')} ${url}`);
+  if (noindexed.length) console.log('');
 
   for (const w of warnings) console.log(`${yellow('↷')} ${dim(w.where)} ${w.message}`);
   for (const f of failures) console.log(`${red('✗')} ${f.where} ${f.message}`);

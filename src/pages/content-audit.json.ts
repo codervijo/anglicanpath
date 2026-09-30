@@ -20,11 +20,15 @@ export const prerender = true;
 export const GET: APIRoute = async () => {
   const learn = await getCollection("learn");
   const paths = await getCollection("paths");
+  const pages = await getCollection("pages");
+  const reviewers = await getCollection("reviewers");
 
   const payload = {
     generatedAt: new Date().toISOString(),
     learn: learn.map(e => ({ id: e.id, body: e.body ?? "", data: e.data })),
     paths: paths.map(e => ({ id: e.id, body: e.body ?? "", data: e.data })),
+    pages: pages.map(e => ({ id: e.id, body: e.body ?? "", data: e.data })),
+    reviewers: reviewers.map(e => ({ id: e.id, data: e.data })),
   };
 
   return new Response(JSON.stringify(payload), {
