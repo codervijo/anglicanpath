@@ -33,3 +33,14 @@ keep `/find-a-parish/` (not `/find/`); delete the 7 leftover prototype article
 stubs and the 5th path; approve `@fontsource-variable/*`; report measured
 performance proxies instead of installing headless Chrome in the shared
 `sites1` image.
+
+## 2026-09-30 — v1.C / v1.D shipped; v1.E–v1.H, v2, v3 planned
+
+> Session covered: publish-then-review page lifecycle; both pillar articles
+> written, sourced and published; GSC verified and sitemap re-submitted;
+> homepage SEO tags fixed; version numbering corrected to the canonical
+> two-level scheme; remaining 8 content pages planned as v1.E–v1.H
+> (search-volume-first ordering); own visual identity planned as v2; global
+> Anglicanism planned as v3 under `/global/`.
+
+Next steps are consolidated in `docs/prd.md` § 7.

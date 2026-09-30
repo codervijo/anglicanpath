@@ -110,3 +110,70 @@ there is first-hand material, not build work. See `CONTENT_README.md`.
   nothing ever applies the class, so dark mode is unreachable outside the
   Daily Office reader's own theme switcher. Wire a toggle, or drop the
   palette?
+
+## 7. Next steps
+
+State at the end of 2026-09-30. Two articles live and indexable; the build
+queue runs v1.E → v1.H, then v2, then v3.
+
+### 7.1 Blocked on the operator — nothing else can fix these
+
+1. **`www.anglicanpath.org` returns 522** (CHECK_150). DNS A records for
+   `www` exist and point at Cloudflare, but no Worker route or redirect rule
+   is bound to that hostname, so nothing serves it. Fix at
+   https://dash.cloudflare.com → Workers & Pages → anglicanpath → Settings →
+   Domains & Routes: add `www.anglicanpath.org`, or add a Redirect Rule
+   `www` → apex 308. This is the only outright broken thing on the site.
+2. **Clergy reviewer.** Both live articles carry "Sourced and fact-checked;
+   not yet reviewed by clergy" in the byline, which every visitor sees. Once
+   a named priest has read them: set `reviewer`, `reviewedDate` and
+   `status: reviewed` on each. See `CONTENT_README.md`.
+3. **PRD §§ 1–3 are still template text.** The material exists in
+   `AI_AGENTS.md` (Summary / Audience / ICP / Goals); it needs restating here
+   in the operator's own words.
+
+### 7.2 Conformance gaps — `portfolio project check anglicanpath.org`
+
+Fixed on 2026-09-30: CHECK_039 (tsconfig), CHECK_071 (meta description),
+CHECK_075 (meta robots), CHECK_076 (og:image). Still open:
+
+- **CHECK_060 has-favicon** — still the default Lovable scaffold favicon.
+- **CHECK_040 git-remote-name-matches-domain** — repo is `anglicanpath`,
+  expected `anglicanpath.org`. Renaming a GitHub repo is outward-facing and
+  was deliberately not done unasked.
+- **CHECK_080 has-analytics** — no analytics markers. Decide whether this
+  site gets any; if so it must not become a render-blocking third-party
+  script, since the pages currently make zero third-party requests.
+- **CHECK_154 indexnow-submitted** — 2 sitemap URLs not submitted to
+  IndexNow.
+- **CHECK_147 url-indexed** — 2/10 top URLs indexed. Expected lag on a site
+  this young; re-check after ~30 days rather than acting on it.
+- **CHECK_143 / CHECK_145 deploy-drift / deploy-fresh** — the portfolio
+  inventory has no hosting row for this domain and the freshness probe
+  assumes CF Pages, not Workers. Fix by running `portfolio` cleanup so
+  `data/portfolio.json` reflects reality.
+
+### 7.3 Decisions still open
+
+- **v3.A:** new content collection vs extending `learn`; and the province
+  entity template (primate, founding, membership, prayer book, Communion
+  status) — it is not an explainer and needs its own furniture.
+- **Reading paths.** Deferred at v1.D: none has more than 2 of 5 steps live,
+  so publishing now would ship mostly-dead step lists. They unlock on their
+  own at v1.F, v1.G and v1.H. No action needed unless that wait is too long.
+- **Tier ordering.** v3.B alone is 1,120/mo of validated demand, more than
+  all of v1.E–v1.H combined (~500/mo). It currently sits third, behind the
+  v2 design work, so that the province template is built once on the new
+  design. The volume argues for moving it up; the build economics argue for
+  leaving it. Operator's call, revisit before starting v2.
+
+### 7.4 Standing reminders
+
+- **Indexing is now a waiting game.** GSC property verified, sitemap
+  submitted and force re-fetched 2026-09-30 with both articles in it.
+  Nothing further to push at it; coverage fills over ~30 days.
+- **Every new page goes through the page lifecycle** — see
+  `docs/architecture.md` § 2 and `CONTENT_README.md`. Accuracy gates
+  publication; clergy review follows.
+- **Versioning is two-level only**, `.A` is always planning. Canonical
+  statement: `sites/portfolio/AI_AGENTS.md` § Versioning.
