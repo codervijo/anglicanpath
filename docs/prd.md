@@ -1,10 +1,10 @@
 ---
 project: anglicanpath.org
 prd_version: 1
-project_version: v1.B
+project_version: v1.E
 status: in-progress
 owner: Vijo
-last_updated: 2026-09-29
+last_updated: 2026-09-30
 ---
 
 # anglicanpath.org — PRD
@@ -51,14 +51,15 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v1.B** | content platform | `learn` + `paths` content collections (Zod); article layout with breadcrumbs, auto TOC, frontmatter-driven sources, related block, parish CTA; Article/BreadcrumbList/FAQPage/Organization JSON-LD; 10 article + 4 path scaffolds; self-hosted fonts, zero third-party requests; build-time content quality gate | built, not deployed |
 | **v1.C** | publish-then-review + first article live | page lifecycle changed from review-then-publish to publish-then-review: `status` becomes `draft \| fact-checked \| published \| reviewed`, gate re-scoped so sources and fact-checking gate publication while a named clergy reviewer gates `reviewed`; `anglican-vs-catholic` sourced and live. State machine and rationale: `docs/architecture.md` § 2 | built, not deployed |
 | **v1.D** | second pillar live | `what-is-the-anglican-church` written from sources and published; both pillar articles now live, which unblocks every other article's required pillar link. Paths deferred — no path has more than 2 of its 5 steps live, so none meets the "only references published articles" bar | article done; paths deferred |
-| **v1.E** | prayer-book cluster | `book-of-common-prayer-online` (150/mo), `1928-book-of-common-prayer` (150, KD 3), `1662-book-of-common-prayer` (90, KD 20) written from sources and published. Highest remaining demand, and the three interlink so they are cheaper written together than apart. 5/10 articles live; no reading path complete yet | planned |
-| **v1.F** | the visit + jurisdictions | `first-anglican-service-what-to-expect` and `acna-and-continuing-churches-explained` published. No measured volume; justified by conversion — the first is the page that turns a reader into a parish visit, and it is the one where operator first-hand material matters most. 7/10 live; **`from-evangelical` becomes the first complete reading path** | planned |
-| **v1.G** | continuing Anglicanism | `what-is-continuing-anglicanism` published. 8/10 live; `from-roman-catholic` completes | planned |
-| **v1.H** | chant + prayer-book comparison | `anglican-chant` (60 / psalm tones 30 / coverdale psalter 20) and `1928-vs-1979-book-of-common-prayer` published. 10/10 live; `orthodox-curious` and `from-episcopal` complete, so **all four reading paths go live** and the `/paths/` half of the site stops being dead | planned |
+| **v1.E** | trust surface | `/about/` rebuilt: mission + statement of belief left as operator-written DRAFT placeholders, editorial standards / review process / independence drafted as proposed copy; flips indexable via frontmatter `status: published`. New `/about/review/` reviewer-invitation page with print stylesheet. `reviewers` content collection shipped empty, advisory panel with honest empty / few / several states; article byline states "Not yet reviewed" when no reviewer is assigned. Build gate: any built page carrying a placeholder must be `noindex` and out of the sitemap. Sample parish detail pages removed from the production build; finder noindexed. Footer year and sitewide "fictitious" line fixed. Comes before more articles because clergy are being invited now and this is the page they read first | in progress |
+| **v1.F** | prayer-book cluster | `book-of-common-prayer-online` (150/mo), `1928-book-of-common-prayer` (150, KD 3), `1662-book-of-common-prayer` (90, KD 20) written from sources and published. Highest remaining demand, and the three interlink so they are cheaper written together than apart. 5/10 articles live; no reading path complete yet | planned |
+| **v1.G** | the visit + jurisdictions | `first-anglican-service-what-to-expect` and `acna-and-continuing-churches-explained` published. No measured volume; justified by conversion — the first is the page that turns a reader into a parish visit, and it is the one where operator first-hand material matters most. 7/10 live; **`from-evangelical` becomes the first complete reading path** | planned |
+| **v1.H** | continuing Anglicanism | `what-is-continuing-anglicanism` published. 8/10 live; `from-roman-catholic` completes | planned |
+| **v1.I** | chant + prayer-book comparison | `anglican-chant` (60 / psalm tones 30 / coverdale psalter 20) and `1928-vs-1979-book-of-common-prayer` published. 10/10 live; `orthodox-curious` and `from-episcopal` complete, so **all four reading paths go live** and the `/paths/` half of the site stops being dead | planned |
 | **v2.A** | Kickoff / decisions lock | audit what currently reads as generic against anglicancompass.org and the wider Anglican-site SERP; decide the differentiators — typeface pairing, palette, layout rhythm, page furniture (ornaments, rules, drop caps), imagery policy — and record them as an ADR in `docs/architecture.md`. No implementation | planned |
 | **v2.B** | identity implemented | new design tokens in `src/styles/global.css`; header, footer, article template, cards and the parish finder restyled to the locked decisions; contrast re-checked AA in both palettes; no regression in the perf budget (zero third-party requests, no JS on text pages) | planned |
 | **v3.A** | Kickoff / decisions lock | URL architecture **decided: everything nests under `/global/`**, which is itself the hub page. Still open: whether this is a new content collection or an extension of `learn`; the province page template, which is an entity page (primate, founding, membership, prayer book in use, Communion status) not an explainer; and how `what is gafcon` (20) is handled as a section of `/global/gafcon/` rather than a competing page. Recorded as an ADR in `docs/architecture.md`. No implementation | planned |
-| **v3.B** | global hub | `/global/` (global anglicanism, 100 — the hub index), `/global/gafcon/` (700, KD 27), `/global/anglican-communion/` (250, KD 32), `/global/anglican-communion-split/` (50), `/global/anglican-realignment/` (20). 1,120/mo validated — more than the whole of v1.E–v1.H combined | planned |
+| **v3.B** | global hub | `/global/` (global anglicanism, 100 — the hub index), `/global/gafcon/` (700, KD 27), `/global/anglican-communion/` (250, KD 32), `/global/anglican-communion-split/` (50), `/global/anglican-realignment/` (20). 1,120/mo validated — more than the whole of v1.F–v1.I combined | planned |
 | **v3.C** | province pages | `/global/church-of-south-india/` (40, KD 7), `/global/church-of-nigeria/` (30), `/global/church-of-pakistan/` (10), `/global/church-of-uganda/` (10), `/global/church-of-north-india/` (10), `/global/anglican-church-of-kenya/` (no data). 100/mo validated | planned |
 | **v3.D** | country / history pages | `/global/anglicanism-in-africa/` (10); `/global/anglicanism-in-india/`, `/global/anglicanism-in-nigeria/`, `/global/anglicanism-in-pakistan/` (no data — validate before writing) | planned |
 
@@ -82,11 +83,11 @@ low-authority site actually runs on.
 **`/anglican-realigmnent/` in the original request is a typo** and is recorded
 here as `/global/anglican-realignment/`.
 
-**Sequencing principle for v1.E–v1.H: search volume first** (operator
+**Sequencing principle for v1.F–v1.I: search volume first** (operator
 decision, 2026-09-30). Pages with measured demand are written before the
 strategic ones, because traffic is what the workspace goal is scored on. The
 cost is accepted: no reading path completes until 7 of 10 articles are live,
-so `/paths/` stays thin through v1.E. Path completion is a consequence of the
+so `/paths/` stays thin through v1.F. Path completion is a consequence of the
 order, not a driver of it.
 
 **v1.C is code-complete and gate-green locally.** `anglican-vs-catholic` is
@@ -114,7 +115,7 @@ there is first-hand material, not build work. See `CONTENT_README.md`.
 ## 7. Next steps
 
 State at the end of 2026-09-30. Two articles live and indexable; the build
-queue runs v1.E → v1.H, then v2, then v3.
+queue runs v1.E → v1.I, then v2, then v3.
 
 ### 7.1 Blocked on the operator — nothing else can fix these
 
@@ -160,9 +161,9 @@ CHECK_075 (meta robots), CHECK_076 (og:image). Still open:
   status) — it is not an explainer and needs its own furniture.
 - **Reading paths.** Deferred at v1.D: none has more than 2 of 5 steps live,
   so publishing now would ship mostly-dead step lists. They unlock on their
-  own at v1.F, v1.G and v1.H. No action needed unless that wait is too long.
+  own at v1.G, v1.H and v1.I. No action needed unless that wait is too long.
 - **Tier ordering.** v3.B alone is 1,120/mo of validated demand, more than
-  all of v1.E–v1.H combined (~500/mo). It currently sits third, behind the
+  all of v1.F–v1.I combined (~500/mo). It currently sits third, behind the
   v2 design work, so that the province template is built once on the new
   design. The volume argues for moving it up; the build economics argue for
   leaving it. Operator's call, revisit before starting v2.
