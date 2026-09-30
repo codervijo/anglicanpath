@@ -44,3 +44,20 @@ performance proxies instead of installing headless Chrome in the shared
 > Anglicanism planned as v3 under `/global/`.
 
 Next steps are consolidated in `docs/prd.md` § 7.
+
+## 2026-09-30 — v1.E: trust surface — /about/ rebuild, reviewer invitation, placeholder-noindex gate
+
+> Rebuild /about/ as a real, trustworthy page (it was all placeholders and
+> indexed). Do not write the mission or statement of belief — DRAFT
+> placeholders with briefs. Draft operational copy (editorial standards,
+> review process, independence) as "proposed". Any page containing a DRAFT
+> placeholder must be noindex and out of the sitemap, enforced by a build
+> check; /about/ flips indexable via frontmatter. `reviewers` collection
+> shipped empty with an honest empty state; "Not yet reviewed" bylines; new
+> /about/review/ invitation page with print stylesheet; fix © [Year]; move
+> the "fictitious" line off the sitewide footer; handle the sample parish
+> pages. Commit in small steps, do not deploy.
+
+Operator decisions: placed as v1.E (content phases renumbered v1.F–v1.I);
+contact email `hello@anglicanpath.org` (needs Email Routing). Sample parish
+detail pages removed from the production build; finder noindexed.

@@ -1,6 +1,6 @@
 ---
 project: anglicanpath.org
-last_updated: 2026-09-29
+last_updated: 2026-09-30
 ---
 
 # anglicanpath.org — architecture
@@ -14,9 +14,15 @@ writing a page — it links here for the reasoning.
 
 | Path | Role |
 |---|---|
-| `src/content.config.ts` | Zod schemas for the `learn` and `paths` collections |
+| `src/content.config.ts` | Zod schemas for the `learn`, `paths`, `reviewers` and `pages` collections |
 | `src/content/learn/*.mdx` | Articles. Filename is the URL slug |
 | `src/content/paths/*.mdx` | Guided reading paths |
+| `src/content/reviewers/*.md` | Clergy advisory panel. Ships empty |
+| `src/content/pages/**/*.mdx` | `/about/`, `/about/review/` |
+| `src/layouts/EditorialPage.astro` | Template for `pages`; decides `noindex` |
+| `src/lib/placeholders.js` | Placeholder + noindex detection, shared by pages and gate |
+| `src/lib/reviewers.ts` | Reviewer lookups; advisory panel layout |
+| `src/lib/site.ts` | Site name, URL, contact email/phone, logo |
 | `src/lib/content.ts` | Visibility rules — which states build for production |
 | `src/lib/jsonld.ts` | Article / BreadcrumbList / Organization / FAQPage builders |
 | `src/lib/taxonomy.ts` | Topic labels, reading-time |
@@ -127,6 +133,31 @@ because it contains unpublished draft bodies.
 
 `pnpm build:only` skips the gate. Its `dist/` must not be published.
 
-## 4. Tracked refactors
+## 4. Indexing and placeholders
+
+**Rule: a built page that still shows placeholder text is `noindex` and
+absent from the sitemap.** Articles and paths satisfy it by not being built
+at all (§ 2.4). Everything else — `/about/`, the office readers, the sample
+parish finder — is built, so it needs the rule stated separately.
+
+- **Pages decide their own `noindex`** from their source, via
+  `src/lib/placeholders.js`: `EditorialPage` from `status` + the MDX body,
+  the office readers from `src/data/office.ts`, the parish finder
+  unconditionally while it holds sample data. Filling the last placeholder
+  flips a page to indexable with no code change.
+- **The sitemap follows the built HTML.** `astro.config.mjs` filters out any
+  page whose `<meta name="robots">` says `noindex`, so the two cannot
+  disagree.
+- **Small placeholders inside otherwise-real pages** (homepage, `/office/`)
+  render in `astro dev` only rather than noindexing the whole page.
+- **The gate enforces it** on every built page: an indexable page showing
+  placeholder text, or a sitemap URL that is not a built indexable page,
+  fails the build. It also prints every noindex URL.
+- **Sample data is not a placeholder page — it is worse.** The invented
+  parishes in `src/data/parishes.ts` get no detail pages in production at
+  all; the finder that lists them is noindex and says on the page that none
+  of them exists.
+
+## 5. Tracked refactors
 
 - *(none open)*

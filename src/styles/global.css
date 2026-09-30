@@ -331,7 +331,7 @@ html { scroll-behavior: smooth; }
   }
 }
 
-/* Editorial pages (/about/, /about/review/) — docs/architecture.md § 5.
+/* Editorial pages (/about/, /about/review/) — docs/architecture.md § 4.
    .draft-block is an operator-owned section still to be written; readers see
    a plain notice, `astro dev` also shows the brief. .proposed-block frames
    Claude-drafted copy awaiting approval, in dev only. Colours are the theme

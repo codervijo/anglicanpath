@@ -2,7 +2,7 @@
 // scripts/check-content.mjs (to refuse an indexable page that still carries
 // one). Plain JS so the Node gate can import it without a TS step.
 //
-// The rule it serves (docs/architecture.md § 5): a built page that still
+// The rule it serves (docs/architecture.md § 4): a built page that still
 // contains placeholder text is `noindex` and absent from the sitemap. Pages
 // compute their own `noindex` from these helpers, so filling the last
 // placeholder flips a page to indexable with no code change.

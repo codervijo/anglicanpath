@@ -64,3 +64,12 @@ https://search.google.com/search-console directly.
 - **Action:** project scaffolded via `portfolio new bootstrap`; first deploy pending. After deploy: verify in GSC as `sc-domain:anglicanpath.org` and submit the sitemap.
 - **Result:** TBD — review 2026-10-17
 - **Learning:** TBD
+
+## 2026-09-30 — Noindex every placeholder page; sitemap drops from 21 URLs to 6
+- **Status:** active
+- **Hypothesis:** Removing thin placeholder and invented-sample pages from the index (and the sitemap) concentrates Google's limited crawl on the pages with real content, and avoids the site being judged on fictitious parish listings. Indexed-page count may fall before the real pages' coverage rises.
+- **KPI:** GSC indexed pages; coverage status of /learn/anglican-vs-catholic/ and /learn/what-is-the-anglican-church/
+- **Baseline:** 2/10 top URLs indexed (/, /about/); 0 impressions; sitemap 21 URLs
+- **Action:** v1.E. /about/, /about/review/, /find-a-parish/ and the 4 dated office pages → noindex, out of the sitemap; 9 sample parish detail pages no longer built (will 404). Build gate now blocks any indexable page with placeholder text. Not yet deployed.
+- **Result:** TBD — review 2026-10-28 (28 days after deploy; adjust to the deploy date)
+- **Learning:** TBD

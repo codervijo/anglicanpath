@@ -212,6 +212,12 @@ Track this project's progress in `docs/prd.md` against this taxonomy.
   rendered in `astro dev` only and are absent from a production build, so the
   sitemap and every index are clean by construction. Don't add a `noindex`
   path for them — see `src/lib/content.ts`.
+- **A built page that shows placeholder text is `noindex` and out of the
+  sitemap** — enforced by the content gate. Mechanism and exceptions:
+  `docs/architecture.md` § 4. `/about/` flips indexable by frontmatter
+  (`status: published`) once its `<Draft>` / `<Proposed>` blocks are gone.
+- **The `reviewers` collection holds only real, consenting clergy.** Never a
+  sample, placeholder or illustrative person — the advisory panel renders it.
 - **`pnpm build` runs the content gate** (`scripts/check-content.mjs`) after
   `astro build`. `pnpm build:only` skips it and leaves `content-audit.json`
   — which contains unpublished draft bodies — in `dist/`. Never publish that.

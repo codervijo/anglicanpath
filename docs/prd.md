@@ -51,7 +51,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v1.B** | content platform | `learn` + `paths` content collections (Zod); article layout with breadcrumbs, auto TOC, frontmatter-driven sources, related block, parish CTA; Article/BreadcrumbList/FAQPage/Organization JSON-LD; 10 article + 4 path scaffolds; self-hosted fonts, zero third-party requests; build-time content quality gate | built, not deployed |
 | **v1.C** | publish-then-review + first article live | page lifecycle changed from review-then-publish to publish-then-review: `status` becomes `draft \| fact-checked \| published \| reviewed`, gate re-scoped so sources and fact-checking gate publication while a named clergy reviewer gates `reviewed`; `anglican-vs-catholic` sourced and live. State machine and rationale: `docs/architecture.md` § 2 | built, not deployed |
 | **v1.D** | second pillar live | `what-is-the-anglican-church` written from sources and published; both pillar articles now live, which unblocks every other article's required pillar link. Paths deferred — no path has more than 2 of its 5 steps live, so none meets the "only references published articles" bar | article done; paths deferred |
-| **v1.E** | trust surface | `/about/` rebuilt: mission + statement of belief left as operator-written DRAFT placeholders, editorial standards / review process / independence drafted as proposed copy; flips indexable via frontmatter `status: published`. New `/about/review/` reviewer-invitation page with print stylesheet. `reviewers` content collection shipped empty, advisory panel with honest empty / few / several states; article byline states "Not yet reviewed" when no reviewer is assigned. Build gate: any built page carrying a placeholder must be `noindex` and out of the sitemap. Sample parish detail pages removed from the production build; finder noindexed. Footer year and sitewide "fictitious" line fixed. Comes before more articles because clergy are being invited now and this is the page they read first | in progress |
+| **v1.E** | trust surface | `/about/` rebuilt: mission + statement of belief left as operator-written DRAFT placeholders, editorial standards / review process / independence drafted as proposed copy; flips indexable via frontmatter `status: published`. New `/about/review/` reviewer-invitation page with print stylesheet. `reviewers` content collection shipped empty, advisory panel with honest empty / few / several states; article byline states "Not yet reviewed" when no reviewer is assigned. Build gate: any built page carrying a placeholder must be `noindex` and out of the sitemap. Sample parish detail pages removed from the production build; finder noindexed. Footer year and sitewide "fictitious" line fixed. Comes before more articles because clergy are being invited now and this is the page they read first | built, not deployed; `/about/` + `/about/review/` await operator copy |
 | **v1.F** | prayer-book cluster | `book-of-common-prayer-online` (150/mo), `1928-book-of-common-prayer` (150, KD 3), `1662-book-of-common-prayer` (90, KD 20) written from sources and published. Highest remaining demand, and the three interlink so they are cheaper written together than apart. 5/10 articles live; no reading path complete yet | planned |
 | **v1.G** | the visit + jurisdictions | `first-anglican-service-what-to-expect` and `acna-and-continuing-churches-explained` published. No measured volume; justified by conversion — the first is the page that turns a reader into a parish visit, and it is the one where operator first-hand material matters most. 7/10 live; **`from-evangelical` becomes the first complete reading path** | planned |
 | **v1.H** | continuing Anglicanism | `what-is-continuing-anglicanism` published. 8/10 live; `from-roman-catholic` completes | planned |
@@ -132,6 +132,20 @@ queue runs v1.E → v1.I, then v2, then v3.
 3. **PRD §§ 1–3 are still template text.** The material exists in
    `AI_AGENTS.md` (Summary / Audience / ICP / Goals); it needs restating here
    in the operator's own words.
+
+4. **v1.E — `/about/` copy.** Write the three `<Draft>` sections (mission,
+   statement of belief, who runs the site); approve or rewrite every
+   `<Proposed>` block on `/about/` and `/about/review/`; resolve the `VERIFY`
+   note on "written from study, not generated" — the live articles were
+   AI-assisted, so the sentence is not yet true. Then `status: published`.
+   See `CONTENT_README.md` § Editorial pages.
+5. **v1.E — `hello@anglicanpath.org` cannot receive mail.** The zone has no
+   MX records. Enable Email Routing:
+   https://dash.cloudflare.com → anglicanpath.org → Email → Email Routing.
+6. **v1.E — no phone number, no logo.** `/about/review/` promises withdrawal
+   "by email or phone"; set `CONTACT_PHONE` in `src/lib/site.ts` or change
+   the copy. Organization JSON-LD omits `logo` until a real one replaces the
+   scaffold favicon (`LOGO_PATH`).
 
 ### 7.2 Conformance gaps — `portfolio project check anglicanpath.org`
 

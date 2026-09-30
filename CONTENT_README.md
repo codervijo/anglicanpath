@@ -84,27 +84,59 @@ internal link. Every article must also link to `anglican-vs-catholic` or
 
 ### To mark a page clergy-reviewed
 
-Once a named priest has read the live page: add `reviewer` and
-`reviewedDate` (below) and set `status: reviewed`. Setting a reviewer
-without moving to `reviewed` fails the build, and so does `reviewed`
-without one.
+Once a named priest has read the live page: set `reviewer` to their id in
+the `reviewers` collection, add `reviewedDate`, set `status: reviewed`, and
+add the article's slug to that reviewer's `articlesReviewed`. The gate
+checks both sides agree. Setting a reviewer without moving to `reviewed`
+fails the build, and so does `reviewed` without one.
+
+A substantive edit after review removes the signature: set the article
+back to `status: published`, clear `reviewer`, `reviewedDate` and
+`reviewerNote`, and remove the slug from the reviewer's `articlesReviewed`.
 
 ---
 
 ## Adding a reviewer
 
+Reviewers live in `src/content/reviewers/<id>.md` — frontmatter only, one
+file per priest. The collection ships **empty**, and an entry is added only
+for a real person who has agreed to review, with details they have
+approved. Never add a sample or placeholder reviewer: the advisory panel on
+`/about/` renders whatever is there.
+
+Fields: `name`, `title`, `parish`, `jurisdiction`, `url` (the parish
+website), `bio`, `photo` (optional, a path to an image next to the file),
+`articlesReviewed` (slugs), `joinedDate`, `status` (`active` | `emeritus`).
+Each entry gets a profile page at `/about/reviewers/<id>/`.
+
+On an article, the signature is three fields:
+
 ```yaml
-reviewer:
-  name: "The Revd Jane Doe"
-  title: "Rector, St Example's, Springfield"
-reviewedDate: 2026-10-04
+reviewer: <reviewer id>     # the filename without .md
+reviewedDate: <YYYY-MM-DD>
+reviewerNote: null          # or the reviewer's own words, verbatim
 ```
 
 Required only to reach `reviewed` — they do **not** gate publication.
-They render as a "Reviewed by … on …" line under the summary, replacing
-the "not yet reviewed by clergy" notice, and as `reviewedBy` in the
-Article structured data. Leave them `null` until a named person has
-actually read the finished article — never fill them speculatively.
+They render as "Reviewed by … on …" in the byline, replacing
+"Not yet reviewed by clergy", and as `reviewedBy` in the Article
+structured data. Leave them `null` until a named person has actually read
+the finished article — never fill them speculatively.
+
+## Editorial pages (/about/)
+
+`/about/` and `/about/review/` are MDX in `src/content/pages/`. Two
+wrappers mark what is unfinished:
+
+- `<Draft brief="…" />` — a section only the operator can write. Readers see
+  "This section is being written"; `astro dev` also shows the brief.
+- `<Proposed>…</Proposed>` — copy Claude drafted for approval. Framed in
+  `astro dev`, plain prose in production.
+
+A page stays `status: draft` — built, but `noindex` and out of the sitemap —
+until every `<Draft>`, `VERIFY` note and `<Proposed>` wrapper is gone. Then
+set `status: published`; no code change. The gate refuses `published`
+while any of them remains.
 
 ## Adding sources
 
@@ -136,7 +168,7 @@ Defined and validated in `src/content.config.ts`.
 | `searchIntent` | `informational` · `comparison` · `navigational` |
 | `topic` | `basics` · `comparisons` · `prayer-book` · `sacraments` · `history` · `jurisdictions` · `music` |
 | `status` | `draft` · `fact-checked` · `published` · `reviewed` — see the page lifecycle above |
-| `reviewer` / `reviewedDate` | Required for `reviewed` only. See above. |
+| `reviewer` / `reviewedDate` / `reviewerNote` | Required for `reviewed` only (`reviewerNote` optional). See above. |
 | `updatedDate` | Bump when you meaningfully revise. Drives `dateModified`. |
 | `sources` | See above. |
 | `related` | Slugs; render as "Related questions". |

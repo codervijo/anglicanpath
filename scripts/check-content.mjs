@@ -26,7 +26,7 @@
  * and that reviewer's `articlesReviewed` must list the article (and only
  * articles they have actually signed).
  *
- * Site-wide, on every built page regardless of collection (docs/architecture.md § 5):
+ * Site-wide, on every built page regardless of collection (docs/architecture.md § 4):
  *   - an INDEXABLE page (no robots noindex) that still shows placeholder text
  *     fails the build — placeholder pages must be noindex
  *   - every sitemap URL must be a built, indexable page
