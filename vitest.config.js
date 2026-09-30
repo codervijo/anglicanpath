@@ -1,7 +1,9 @@
 // vitest.config.js
-import { defineConfig } from 'vitest/config';
+// getViteConfig gives tests Astro's Vite pipeline, so .astro components can
+// be rendered with the Container API (see advisory-panel.test.ts).
+import { getViteConfig } from 'astro/config';
 
-export default defineConfig({
+export default getViteConfig({
   test: {
     environment: 'jsdom',
     globals: true,

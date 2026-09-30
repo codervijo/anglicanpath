@@ -1,0 +1,98 @@
+---
+// The clergy advisory panel on /about/. Data-driven from the `reviewers`
+// collection, which ships empty. Three layouts (src/lib/reviewers.ts
+// panelLayout): an honest empty state, one or two reviewers at full width,
+// and a grid for several. The component does no fetching, so its states can
+// be rendered from props alone (see src/__tests__/advisory-panel.test.ts).
+//
+// Copy in the empty state is PROPOSED (operator to approve with the rest of
+// /about/). It must never name, imply or preview a reviewer who has not
+// agreed.
+import { Image } from "astro:assets";
+import { panelLayout, reviewerHref, type Reviewer } from "../../lib/reviewers";
+
+interface ArticleLink { title: string; href: string }
+
+interface Props {
+  /** Active reviewers, already sorted. */
+  reviewers: Reviewer[];
+  emeritus?: Reviewer[];
+  /** Published articles by slug. A signed slug that isn't live is omitted. */
+  articles: Record<string, ArticleLink>;
+}
+
+const { reviewers, emeritus = [], articles } = Astro.props;
+const layout = panelLayout(reviewers.length);
+const signed = (r: Reviewer) =>
+  r.data.articlesReviewed.map(slug => articles[slug]).filter((a): a is ArticleLink => Boolean(a));
+---
+<section id="advisory-panel" class="advisory-panel" data-layout={layout} aria-labelledby="advisory-panel-heading">
+  <p class="text-xs font-bold uppercase text-primary">Clergy review</p>
+  <h2 id="advisory-panel-heading" class="mt-3 font-display text-4xl font-semibold">Advisory panel</h2>
+
+  {layout === "empty" && (
+    <div class="mt-8 border-l-4 border-primary bg-secondary/40 px-6 py-6">
+      <p class="font-semibold text-foreground">Clergy reviewers are being invited now.</p>
+      <p class="mt-3 leading-7 text-foreground">
+        No one has joined the panel yet, so no article on this site carries a reviewer’s signature.
+        A signature will appear on an article only after a named priest has read that exact version of it.
+        Until then, every article says in its byline that it has not been reviewed by clergy.
+      </p>
+      <p class="mt-4">
+        <a href="/about/review/" class="font-semibold text-primary underline underline-offset-4">For clergy: what reviewing for Anglican Path involves</a>
+      </p>
+    </div>
+  )}
+
+  {layout !== "empty" && (
+    <ul class:list={[
+      "mt-8 grid gap-px border border-border bg-border",
+      layout === "few" ? (reviewers.length === 2 ? "md:grid-cols-2" : "") : "sm:grid-cols-2 lg:grid-cols-3",
+    ]}>
+      {reviewers.map(r => {
+        const done = signed(r);
+        return (
+          <li class="bg-background p-6" data-reviewer={r.id}>
+            <article>
+              <div class:list={["flex gap-5", layout === "few" ? "items-start" : "flex-col"]}>
+                {r.data.photo && (
+                  <Image src={r.data.photo} alt={r.data.name} width={layout === "few" ? 112 : 80} class="shrink-0 rounded-full object-cover" />
+                )}
+                <div>
+                  <h3 class="font-display text-2xl font-semibold">
+                    <a href={reviewerHref(r.id)} class="hover:text-primary hover:underline">{r.data.name}</a>
+                  </h3>
+                  <p class="mt-1 text-sm text-muted-foreground">{r.data.title}</p>
+                  <p class="mt-1 text-sm">
+                    <a href={r.data.url} rel="noopener" class="text-primary underline underline-offset-4">{r.data.parish}</a>
+                    <span class="text-muted-foreground"> · {r.data.jurisdiction}</span>
+                  </p>
+                </div>
+              </div>
+              <p class="mt-4 text-sm leading-6">{r.data.bio}</p>
+              <p class="mt-5 text-xs font-bold uppercase text-muted-foreground">Articles reviewed</p>
+              {done.length > 0 ? (
+                <ul class="mt-2 space-y-1 text-sm">
+                  {done.map(a => <li><a href={a.href} class="text-primary underline underline-offset-4">{a.title}</a></li>)}
+                </ul>
+              ) : (
+                <p class="mt-2 text-sm text-muted-foreground">No articles signed yet.</p>
+              )}
+            </article>
+          </li>
+        );
+      })}
+    </ul>
+  )}
+
+  {emeritus.length > 0 && (
+    <div class="mt-8">
+      <h3 class="text-xs font-bold uppercase text-muted-foreground">Former reviewers</h3>
+      <ul class="mt-2 space-y-1 text-sm">
+        {emeritus.map(r => (
+          <li><a href={reviewerHref(r.id)} class="text-primary underline underline-offset-4">{r.data.name}</a>, {r.data.title}</li>
+        ))}
+      </ul>
+    </div>
+  )}
+</section>

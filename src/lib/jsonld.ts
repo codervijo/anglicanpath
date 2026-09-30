@@ -5,8 +5,9 @@
 // (the site does not claim individual bylines), and `reviewedBy` is emitted
 // only when frontmatter actually carries a named reviewer.
 
-export const SITE_URL = 'https://anglicanpath.org';
-export const SITE_NAME = 'Anglican Path';
+import { CONTACT_EMAIL, LOGO_PATH, SITE_NAME, SITE_URL } from './site';
+
+export { SITE_NAME, SITE_URL };
 
 /** The organization node, reused as author/publisher across page types. */
 export const organization = () => ({
@@ -19,6 +20,20 @@ export const organization = () => ({
 export const organizationLd = () => ({
   '@context': 'https://schema.org',
   ...organization(),
+});
+
+/**
+ * The fuller Organization node for /about/. No `nonprofitStatus`: that
+ * property names a legal registration (e.g. 501(c)(3)), and none is on
+ * record. No `member` / reviewer nodes either — those wait for real reviewers.
+ */
+export const aboutOrganizationLd = () => ({
+  '@context': 'https://schema.org',
+  ...organization(),
+  email: CONTACT_EMAIL,
+  description:
+    'A not-for-profit resource for people exploring traditional Anglicanism: source-backed explainer articles, a directory of ACNA and Continuing Anglican parishes, and the Daily Office from the 1928 and 1662 Books of Common Prayer. No advertising, no paywall.',
+  ...(LOGO_PATH ? { logo: `${SITE_URL}${LOGO_PATH}` } : {}),
 });
 
 export const websiteLd = () => ({
@@ -52,7 +67,7 @@ export interface ArticleLdInput {
   description: string;
   path: string;
   updatedDate: Date;
-  reviewer: { name: string; title: string } | null;
+  reviewer: { name: string; title: string; profilePath: string } | null;
   reviewedDate: Date | null;
 }
 
@@ -72,6 +87,7 @@ export function articleLd(a: ArticleLdInput) {
       '@type': 'Person',
       name: a.reviewer.name,
       jobTitle: a.reviewer.title,
+      url: `${SITE_URL}${a.reviewer.profilePath}`,
     };
     if (a.reviewedDate) {
       ld.lastReviewed = a.reviewedDate.toISOString().slice(0, 10);

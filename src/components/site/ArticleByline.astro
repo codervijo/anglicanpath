@@ -1,0 +1,53 @@
+---
+// The review line in an article's header. Page lifecycle
+// (docs/architecture.md § 2): a page goes live once it is accurate, and a
+// named priest signs off afterwards. A reader must be able to tell which of
+// the two they are looking at, so this states the absence of a reviewer as
+// plainly as it states a signature — it never goes quiet.
+import type { Reviewer } from "../../lib/reviewers";
+import { reviewerHref } from "../../lib/reviewers";
+
+interface Props {
+  status: "draft" | "fact-checked" | "published" | "reviewed";
+  /** Resolved from the article's `reviewer` reference; null when unassigned. */
+  reviewer: Reviewer | null;
+  reviewedDate: Date | null;
+  reviewerNote: string | null;
+  updatedDate: Date;
+  minutes: number;
+}
+
+const { status, reviewer, reviewedDate, reviewerNote, updatedDate, minutes } = Astro.props;
+const dateFmt = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
+const signed = status === "reviewed" && reviewer !== null && reviewedDate !== null;
+const accuracy =
+  status === "published" ? "Sourced and fact-checked"
+  : status === "fact-checked" ? "Fact-checked, not yet published"
+  : status === "draft" ? "Draft"
+  : null;
+---
+<div class="mt-7 text-sm text-muted-foreground">
+  <p class="flex flex-wrap items-center gap-x-3 gap-y-1">
+    {signed ? (
+      <span>
+        Reviewed by <a href={reviewerHref(reviewer!.id)} class="font-semibold text-foreground underline decoration-border underline-offset-4 hover:text-primary">{reviewer!.data.name}</a>, {reviewer!.data.title}, on {dateFmt.format(reviewedDate!)}
+      </span>
+    ) : (
+      <span class="await-review">
+        {accuracy && <>{accuracy}. </>}
+        <strong class="font-semibold text-foreground">Not yet reviewed by clergy.</strong>{" "}
+        <a href="/about/#review-process" class="underline decoration-border underline-offset-4 hover:text-primary">How review works</a>
+      </span>
+    )}
+    <span aria-hidden="true" class="text-border">·</span>
+    <span>Updated {dateFmt.format(updatedDate)}</span>
+    <span aria-hidden="true" class="text-border">·</span>
+    <span>{minutes} min read</span>
+  </p>
+  {signed && reviewerNote && (
+    <blockquote class="mt-4 max-w-3xl border-l-2 border-primary pl-4 text-base text-foreground">
+      <p>{reviewerNote}</p>
+      <footer class="mt-1 text-sm text-muted-foreground">— {reviewer!.data.name}</footer>
+    </blockquote>
+  )}
+</div>

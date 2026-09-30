@@ -1,0 +1,58 @@
+---
+// One reviewer's profile at /about/reviewers/<id>/ — the "profile page"
+// /about/review/ promises. Generated from the `reviewers` collection, which
+// ships empty, so no page is built until a real reviewer is added.
+import { Image } from "astro:assets";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import SeoHead from "../../../components/SeoHead.astro";
+import Breadcrumbs from "../../../components/site/Breadcrumbs.astro";
+import { allReviewers, reviewerHref } from "../../../lib/reviewers";
+import { learnHref, resolveLearn } from "../../../lib/content";
+import { breadcrumbLd, type Crumb } from "../../../lib/jsonld";
+
+export async function getStaticPaths() {
+  const reviewers = await allReviewers();
+  return reviewers.map(r => ({ params: { id: r.id }, props: { reviewer: r } }));
+}
+
+const { reviewer } = Astro.props;
+const r = reviewer.data;
+const path = reviewerHref(reviewer.id);
+const articles = await resolveLearn(r.articlesReviewed);
+const dateFmt = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
+
+const crumbs: Crumb[] = [
+  { name: "Home", path: "/" },
+  { name: "About", path: "/about/" },
+  { name: r.name, path },
+];
+const description = `${r.name}, ${r.title}, ${r.parish} (${r.jurisdiction}) — clergy reviewer for Anglican Path.`.slice(0, 160);
+---
+<BaseLayout>
+  <Fragment slot="head">
+    <SeoHead title={`${r.name} — Clergy reviewer — Anglican Path`} description={description} path={path} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd(crumbs))} />
+  </Fragment>
+  <main class="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
+    <Breadcrumbs crumbs={crumbs} />
+    <div class="mt-8 flex flex-wrap items-start gap-6">
+      {r.photo && <Image src={r.photo} alt={r.name} width={144} class="rounded-full object-cover" />}
+      <div>
+        <p class="text-xs font-bold uppercase text-primary">{r.status === "emeritus" ? "Former clergy reviewer" : "Clergy reviewer"}</p>
+        <h1 class="mt-2 font-display text-4xl font-semibold sm:text-5xl">{r.name}</h1>
+        <p class="mt-2 text-muted-foreground">{r.title}</p>
+        <p class="mt-1"><a href={r.url} rel="noopener" class="text-primary underline underline-offset-4">{r.parish}</a> <span class="text-muted-foreground">· {r.jurisdiction}</span></p>
+      </div>
+    </div>
+    <p class="mt-8 text-lg leading-8">{r.bio}</p>
+    <h2 class="mt-12 font-display text-2xl font-semibold">Articles reviewed</h2>
+    {articles.length > 0 ? (
+      <ul class="mt-4 space-y-2">
+        {articles.map(a => <li><a href={learnHref(a.id)} class="text-primary underline underline-offset-4">{a.data.title}</a></li>)}
+      </ul>
+    ) : (
+      <p class="mt-4 text-muted-foreground">No articles signed yet.</p>
+    )}
+    <p class="mt-10 text-sm text-muted-foreground">Joined the advisory panel on {dateFmt.format(r.joinedDate)}.</p>
+  </main>
+</BaseLayout>

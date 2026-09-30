@@ -1,7 +1,8 @@
 // Content collections for the editorial side of the site.
 //
-// Two collections: `learn` (articles at /learn/<slug>/) and `paths`
-// (guided reading paths at /paths/<pathId>/). Both are markdown + frontmatter
+// Four collections: `learn` (articles at /learn/<slug>/), `paths`
+// (guided reading paths at /paths/<pathId>/), `reviewers` (the clergy panel)
+// and `pages` (/about/ and friends). All are markdown + frontmatter
 // loaded by the glob loader; the entry `id` is the filename, which IS the URL
 // slug.
 //
@@ -11,14 +12,8 @@
 // express "fail conditionally on another field" without making every
 // half-written draft unloadable, so the length rules deliberately live in
 // scripts/check-content.mjs instead. Keep them there.
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, reference, z } from 'astro:content';
 import { glob } from 'astro/loaders';
-
-/** Named clergy reviewer. Null until the operator has one; never invented. */
-const reviewer = z.object({
-  name: z.string(),
-  title: z.string(),
-});
 
 /** A primary or scholarly source, rendered in the article's citations list. */
 const source = z.object({
@@ -66,9 +61,16 @@ const learn = defineCollection({
      * Publication is gated on accuracy; theological endorsement follows.
      */
     status: z.enum(['draft', 'fact-checked', 'published', 'reviewed']).default('draft'),
-    /** Required to reach `reviewed`, and only then. Never filled speculatively. */
-    reviewer: reviewer.nullable().default(null),
+    /** Id of an entry in the `reviewers` collection. Required to reach
+     *  `reviewed`, and only then. Never filled speculatively. The reviewer's
+     *  own `articlesReviewed` must list this slug too — the gate checks both. */
+    reviewer: reference('reviewers').nullable().default(null),
+    /** The date the reviewer signed off on the version now live. A
+     *  substantive edit sends the article back to `published` and clears it. */
     reviewedDate: z.coerce.date().nullable().default(null),
+    /** Optional note from the reviewer, in their own words, shown beside the
+     *  signature. Only ever text the reviewer supplied. */
+    reviewerNote: z.string().nullable().default(null),
     updatedDate: z.coerce.date(),
     sources: z.array(source).default([]),
     /** Slugs of sibling articles, rendered as "Related questions". */
@@ -104,4 +106,54 @@ const paths = defineCollection({
   }),
 });
 
-export const collections = { learn, paths };
+/**
+ * Clergy on the advisory panel — one markdown file per reviewer, frontmatter
+ * only. Ships EMPTY: an entry is added only for a real priest who has agreed
+ * to review, with the details they have approved. No sample entries, ever.
+ * Rendered by src/components/site/AdvisoryPanel.astro and
+ * src/pages/about/reviewers/[id].astro.
+ */
+const reviewers = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/reviewers' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      /** As the reviewer styles it, e.g. their ecclesiastical title. */
+      title: z.string(),
+      parish: z.string(),
+      jurisdiction: z.string(),
+      /** The parish's website — the outbound link on the panel. */
+      url: z.string().url(),
+      bio: z.string(),
+      photo: image().optional(),
+      /** Slugs of `learn` articles this reviewer has signed. */
+      articlesReviewed: z.array(z.string()).default([]),
+      joinedDate: z.coerce.date(),
+      status: z.enum(['active', 'emeritus']).default('active'),
+    }),
+});
+
+/**
+ * Standalone editorial pages (/about/, /about/review/). The body is MDX; the
+ * page lifecycle is simpler than `learn`'s:
+ *   draft     — built but noindex and out of the sitemap
+ *   published — indexable, provided no placeholder and no <Proposed> block
+ *               remains; scripts/check-content.mjs fails the build otherwise
+ * Filling the last placeholder and setting `status: published` is the whole
+ * switch — no code change.
+ */
+const pages = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/pages' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    /** H1 — may differ from the <title>. */
+    heading: z.string(),
+    /** One line under the H1. */
+    summary: z.string(),
+    status: z.enum(['draft', 'published']).default('draft'),
+    updatedDate: z.coerce.date(),
+  }),
+});
+
+export const collections = { learn, paths, reviewers, pages };
