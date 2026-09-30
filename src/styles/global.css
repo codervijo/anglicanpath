@@ -330,3 +330,41 @@ html { scroll-behavior: smooth; }
     text-decoration: none;
   }
 }
+
+/* Editorial pages (/about/, /about/review/) — docs/architecture.md § 5.
+   .draft-block is an operator-owned section still to be written; readers see
+   a plain notice, `astro dev` also shows the brief. .proposed-block frames
+   Claude-drafted copy awaiting approval, in dev only. Colours are the theme
+   tokens, whose pairings clear WCAG AA in both palettes. */
+.editorial-body .prose-section { margin-bottom: 3.5rem; }
+.editorial-body .prose-section h3 { margin: 2rem 0 .75rem; font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; }
+.editorial-body .prose-section blockquote { margin: 1.5rem 0; border-left: 3px solid var(--color-primary); padding: .5rem 0 .5rem 1.25rem; font-family: var(--font-display); font-size: 1.35rem; font-style: italic; }
+.editorial-body .prose-section a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 3px; }
+.editorial-body .prose-section strong { font-weight: 600; }
+.draft-block {
+  border: 1px dashed var(--color-primary);
+  background: var(--color-secondary);
+  color: var(--color-foreground);
+  padding: 1rem 1.25rem;
+}
+.prose-section .draft-block p { margin: 0; font-family: var(--font-sans); font-size: 1rem; line-height: 1.6; }
+.prose-section .draft-block .draft-brief { margin-top: .6rem; color: var(--color-primary); }
+.proposed-block { outline: 2px dashed var(--color-ring); outline-offset: .75rem; margin-block: 1.5rem; }
+.prose-section .proposed-label, .proposed-label { margin: 0 0 1rem; font-family: var(--font-sans); font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--color-primary); }
+.print-only { display: none; }
+
+/* /about/review/ is designed to be printed and handed over in person. */
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block; }
+  .print-sheet header.border-b { border: 0; background: transparent; }
+  .print-sheet header .mx-auto, .print-sheet .editorial-body { max-width: none; padding: 0; }
+  .print-sheet h1 { margin-top: 0; font-size: 26pt; }
+  .print-sheet .prose-section { margin-bottom: .3in; break-inside: avoid; }
+  .print-sheet .prose-section h2 { font-size: 16pt; margin-bottom: .08in; break-after: avoid; }
+  .print-sheet .prose-section p, .print-sheet .prose-section li { font-size: 11pt; line-height: 1.5; margin-block: .06in; }
+  .print-sheet .prose-section blockquote { font-size: 13pt; }
+  .print-sheet .contact-block { background: transparent; }
+  .print-sheet a[href^="mailto:"]::after { content: ""; }
+  .print-sheet .prose-section a[href^="/"]::after { content: " (anglicanpath.org" attr(href) ")"; font-size: 9pt; }
+}

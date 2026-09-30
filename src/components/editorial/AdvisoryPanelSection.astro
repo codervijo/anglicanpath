@@ -1,0 +1,10 @@
+---
+// Data-fetching wrapper so MDX can drop the advisory panel in with no props.
+import AdvisoryPanel from "../site/AdvisoryPanel.astro";
+import { activeReviewers, emeritusReviewers } from "../../lib/reviewers";
+import { learnHref, visibleLearn } from "../../lib/content";
+
+const [reviewers, emeritus, learn] = await Promise.all([activeReviewers(), emeritusReviewers(), visibleLearn()]);
+const articles = Object.fromEntries(learn.map(e => [e.id, { title: e.data.title, href: learnHref(e.id) }]));
+---
+<AdvisoryPanel reviewers={reviewers} emeritus={emeritus} articles={articles} />

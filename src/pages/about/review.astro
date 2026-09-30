@@ -1,0 +1,25 @@
+---
+// /about/review/ — the invitation page for prospective clergy reviewers,
+// rendered from src/content/pages/about/review.mdx. Designed to be printed
+// and handed over in person: see the `print-sheet` rules in global.css.
+import { getEntry } from "astro:content";
+import EditorialPage from "../../layouts/EditorialPage.astro";
+import { SITE_URL, type Crumb } from "../../lib/jsonld";
+
+const entry = (await getEntry("pages", "about/review"))!;
+const crumbs: Crumb[] = [
+  { name: "Home", path: "/" },
+  { name: "About", path: "/about/" },
+  { name: "Reviewing for Anglican Path", path: "/about/review/" },
+];
+---
+<EditorialPage entry={entry} crumbs={crumbs} bodyClass="print-sheet">
+  <p class="no-print mt-10">
+    <button type="button" data-print class="inline-flex h-11 items-center rounded-md border border-primary px-5 font-semibold text-primary hover:bg-primary hover:text-primary-foreground">Print this page</button>
+  </p>
+  <p class="print-only mt-10 text-sm">{SITE_URL.replace("https://", "")}/about/review/</p>
+</EditorialPage>
+
+<script>
+  document.querySelectorAll("button[data-print]").forEach(b => b.addEventListener("click", () => window.print()));
+</script>

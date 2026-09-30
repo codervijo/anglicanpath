@@ -1,0 +1,54 @@
+---
+// Standalone editorial page rendered from the `pages` collection (/about/,
+// /about/review/). Title, meta description, H1 and summary come from
+// frontmatter; breadcrumbs and their JSON-LD come from `crumbs`.
+//
+// Indexing follows the page itself (docs/architecture.md § 5): noindex unless
+// `status: published` AND the source carries no placeholder. astro.config.mjs
+// drops noindex pages from the sitemap, and scripts/check-content.mjs fails
+// the build if a page with a placeholder is ever indexable.
+import { render, type CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import SeoHead from "../components/SeoHead.astro";
+import Breadcrumbs from "../components/site/Breadcrumbs.astro";
+import Draft from "../components/editorial/Draft.astro";
+import Proposed from "../components/editorial/Proposed.astro";
+import ContactBlock from "../components/editorial/ContactBlock.astro";
+import AdvisoryPanelSection from "../components/editorial/AdvisoryPanelSection.astro";
+import { hasSourcePlaceholder } from "../lib/placeholders.js";
+import { breadcrumbLd, type Crumb } from "../lib/jsonld";
+
+interface Props {
+  entry: CollectionEntry<"pages">;
+  crumbs: Crumb[];
+  /** Extra JSON-LD blocks for this page. */
+  ld?: object[];
+  bodyClass?: string;
+}
+
+const { entry, crumbs, ld = [], bodyClass } = Astro.props;
+const d = entry.data;
+const path = crumbs[crumbs.length - 1].path;
+const { Content } = await render(entry);
+const noindex = d.status !== "published" || hasSourcePlaceholder(entry.body ?? "");
+const blocks = [...ld, breadcrumbLd(crumbs)];
+---
+<BaseLayout bodyClass={bodyClass}>
+  <Fragment slot="head">
+    <SeoHead title={d.title} description={d.description} path={path} noindex={noindex} modifiedTime={d.updatedDate.toISOString()} />
+    {blocks.map(b => <script type="application/ld+json" set:html={JSON.stringify(b)} />)}
+  </Fragment>
+  <main>
+    <header class="border-b border-border bg-secondary/25">
+      <div class="mx-auto max-w-4xl px-5 py-12 sm:px-8 sm:py-16">
+        <Breadcrumbs crumbs={crumbs} class="no-print" />
+        <h1 class="mt-8 font-display text-4xl font-semibold leading-tight sm:text-6xl">{d.heading}</h1>
+        <p class="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">{d.summary}</p>
+      </div>
+    </header>
+    <div class="editorial-body mx-auto max-w-4xl px-5 py-12 sm:px-8 sm:py-16">
+      <Content components={{ Draft, Proposed, ContactBlock, AdvisoryPanel: AdvisoryPanelSection }} />
+      <slot />
+    </div>
+  </main>
+</BaseLayout>

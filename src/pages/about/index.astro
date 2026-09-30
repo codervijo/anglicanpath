@@ -1,0 +1,14 @@
+---
+// /about/ — rendered from src/content/pages/about.mdx. Organization JSON-LD
+// only; no reviewer or endorsement markup until real reviewers exist.
+import { getEntry } from "astro:content";
+import EditorialPage from "../../layouts/EditorialPage.astro";
+import { aboutOrganizationLd, type Crumb } from "../../lib/jsonld";
+
+const entry = (await getEntry("pages", "about"))!;
+const crumbs: Crumb[] = [
+  { name: "Home", path: "/" },
+  { name: "About", path: "/about/" },
+];
+---
+<EditorialPage entry={entry} crumbs={crumbs} ld={[aboutOrganizationLd()]} />

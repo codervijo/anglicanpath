@@ -11,6 +11,10 @@ export const SITE_NAME = 'Anglican Path';
  */
 export const CONTACT_EMAIL = 'hello@anglicanpath.org';
 
+/** Public phone number, or null. /about/review/ offers withdrawal "by email
+ *  or phone"; the number is shown only once the operator sets one. */
+export const CONTACT_PHONE: string | null = null;
+
 /**
  * Site-relative path to the organisation logo for JSON-LD, or null. Null on
  * purpose: public/favicon.svg is still the scaffold default (CHECK_060) and

@@ -1,0 +1,12 @@
+---
+// Copy Claude drafted for the operator's review. In `astro dev` it is framed
+// and labelled; in production it renders as ordinary prose. A page whose
+// source still contains <Proposed> cannot be `status: published` — the gate
+// (scripts/check-content.mjs) fails the build — so approving the copy means
+// deleting the wrapper.
+const DEV = import.meta.env.DEV;
+---
+<div data-proposed class:list={[DEV && "proposed-block"]}>
+  {DEV && <p class="proposed-label">Proposed copy — awaiting operator review</p>}
+  <slot />
+</div>

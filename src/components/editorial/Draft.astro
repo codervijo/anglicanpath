@@ -1,0 +1,18 @@
+---
+// An unwritten section the operator owns (mission, statement of belief, ...).
+// Emits the HTML comment `<!-- DRAFT: ... -->` and a visible, honest notice.
+// Any page whose source contains <Draft> is noindex and out of the sitemap
+// (src/lib/placeholders.js); the build fails if one is ever indexable.
+// The brief is shown in `astro dev` only — readers see a plain notice.
+interface Props {
+  /** What the section must establish. */
+  brief: string;
+}
+const { brief } = Astro.props;
+const comment = `<!-- DRAFT: Vijo to write — ${brief.replace(/--/g, "—")} -->`;
+---
+<Fragment set:html={comment} />
+<div data-draft class="draft-block">
+  <p>This section is being written.</p>
+  {import.meta.env.DEV && <p class="draft-brief"><strong>DRAFT — Vijo to write.</strong> {brief}</p>}
+</div>

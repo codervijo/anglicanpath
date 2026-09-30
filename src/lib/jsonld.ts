@@ -32,7 +32,9 @@ export const aboutOrganizationLd = () => ({
   ...organization(),
   email: CONTACT_EMAIL,
   description:
-    'A not-for-profit resource for people exploring traditional Anglicanism: source-backed explainer articles, a directory of ACNA and Continuing Anglican parishes, and the Daily Office from the 1928 and 1662 Books of Common Prayer. No advertising, no paywall.',
+    // Only what is live: the parish directory and the Daily Office are still
+    // sample data / placeholder text, so they are described as in preparation.
+    'A not-for-profit resource for people exploring traditional Anglicanism, publishing source-backed explainer articles. A directory of ACNA and Continuing Anglican parishes and the Daily Office from the 1928 and 1662 Books of Common Prayer are in preparation. No advertising, no paywall.',
   ...(LOGO_PATH ? { logo: `${SITE_URL}${LOGO_PATH}` } : {}),
 });
 
