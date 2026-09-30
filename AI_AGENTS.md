@@ -171,8 +171,14 @@ in `sites/portfolio/AI_AGENTS.md`):
 - **`vN.X`** — phase letter within a tier (A / B / C / …). Internal slicing of
   build work; signals "order/scope can shift." Each phase still ships
   independently.
-- **`vN.X.Y`** — numeric sub-phase for follow-up work that lands AFTER `vN.X`
-  shipped (e.g. polish, bug fixes, scope cuts).
+- **`vN.A` is always the planning / decisions-lock phase.** Every tier opens
+  with `.A` reserved for kickoff — locking design decisions, scope, schema/API
+  shape and any ADR — *before* implementation. Build work starts at `.B`. Never
+  put build work in `.A`; if a tier's first instinct is code, its planning
+  still gets its own `.A` row above it.
+- **Two levels only. Never `vN.X.Y`.** When follow-up work emerges inside a
+  tier, push subsequent phase letters down to make room. Three-level
+  identifiers are forbidden under any circumstance.
 
 Two-layer notation separates **external version** (what consumers see) from
 **internal phasing** (how the team slices work). Letters signal *un-promised* —
@@ -181,7 +187,7 @@ nobody mistakes `v1.B` for a SemVer minor release.
 **Always use this numbering when planning or shipping work on this project.**
 Specifically:
 
-- Every entry in `docs/prd.md`'s phases table uses `vN.X` (or `vN.X.Y`).
+- Every entry in `docs/prd.md`'s phases table uses `vN.X` — never `vN.X.Y`.
 - Every commit message that ships a phase mentions its version (e.g.
   `v1.B — auth flow`).
 - Every entry in `docs/Prompts.md` references the version of the work it
@@ -190,8 +196,7 @@ Specifically:
 Don't introduce a parallel scheme (no `0.1.0` / `Sprint 3` / etc.). When in
 doubt, the canonical statement is `sites/portfolio/AI_AGENTS.md`.
 
-Track this project's progress in `docs/prd.md` against this taxonomy. v0.A is
-the bootstrap (this scaffold); v1.A is the first real shipped capability.
+Track this project's progress in `docs/prd.md` against this taxonomy.
 
 ## Conventions
 
@@ -207,7 +212,7 @@ the bootstrap (this scaffold); v1.A is the first real shipped capability.
   — which contains unpublished draft bodies — in `dist/`. Never publish that.
 - Build path: this project's `Makefile` → `../Makefile` → `~/work/projects/builder/`
 - Cloudflare deploy constraints: Vite ≥ 6, frozen-lockfile install, no `_redirects` SPA fallback (handled by `wrangler.jsonc`'s `not_found_handling` instead).
-- **Versioning**: two-level `vN` / `vN.X` — see Versioning section above and `sites/portfolio/AI_AGENTS.md` for the canonical statement.
+- **Versioning**: two-level `vN` / `vN.X` only, `.A` always planning. The canonical statement is `sites/portfolio/AI_AGENTS.md` § Versioning; this file restates it and defers to it on any conflict.
 
 ## Out of scope / don't touch
 

@@ -1,10 +1,10 @@
 ---
 project: anglicanpath.org
 prd_version: 1
-project_version: v1.A
+project_version: v1.B
 status: in-progress
 owner: Vijo
-last_updated: 2026-09-19
+last_updated: 2026-09-29
 ---
 
 # anglicanpath.org — PRD
@@ -42,13 +42,16 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 
 | Phase | Theme | Features | Status |
 |---|---|---|---|
-| **v0.A** | scaffolded | `portfolio new bootstrap` ran; standard files written; git initialized | ✅ |
-| **v0.B** | ported | tanstack-start prototype ported to Astro (`v15.M`); placeholder copy throughout | ✅ |
-| **v1.A** | content platform | `learn` + `paths` content collections (Zod); article layout with breadcrumbs, auto TOC, frontmatter-driven sources, related block, parish CTA; Article/BreadcrumbList/FAQPage/Organization JSON-LD; 10 article + 4 path scaffolds; self-hosted fonts, zero third-party requests; build-time content quality gate | built, not deployed |
-| **v1.B** | first article live | `anglican-vs-catholic` written from first-hand material, clergy-reviewed, sourced, `status: published`; gate green; deployed | planned |
-| **v1.C** | pillar + paths live | `what-is-the-anglican-church` published, then the paths that only reference published articles | planned |
+| **v0.A** | Kickoff / decisions lock | stack (astro), workspace conventions and deploy target fixed by `portfolio new bootstrap` | ✅ |
+| **v0.B** | scaffolded | standard files written; git initialized | ✅ |
+| **v0.C** | ported | tanstack-start prototype ported to Astro; placeholder copy throughout | ✅ |
+| **v1.A** | Kickoff / decisions lock | repo inspected (Astro port already done, no port plan needed); four decisions locked — keep `/find-a-parish/`, delete the 7 prototype article stubs and 5th path, approve `@fontsource-variable/*`, measured perf proxies instead of headless Chrome | ✅ |
+| **v1.B** | content platform | `learn` + `paths` content collections (Zod); article layout with breadcrumbs, auto TOC, frontmatter-driven sources, related block, parish CTA; Article/BreadcrumbList/FAQPage/Organization JSON-LD; 10 article + 4 path scaffolds; self-hosted fonts, zero third-party requests; build-time content quality gate | built, not deployed |
+| **v1.C** | publish-then-review + first article live | editorial workflow changed from review-then-publish to publish-then-review: `status` becomes `draft \| fact-checked \| published \| reviewed`, gate re-scoped so sources and fact-checking gate publication while a named clergy reviewer gates `reviewed`; `anglican-vs-catholic` sourced and live. State machine and rationale: `docs/architecture.md` § 2 | planned |
+| **v1.D** | pillar + paths live | `what-is-the-anglican-church` published, then the paths that only reference published articles | planned |
 
-**v1.A is code-complete and gate-green locally. It is not shippable as
+
+**v1.B is code-complete and gate-green locally. It is not shippable as
 content:** all 10 articles and 4 paths are `status: draft`, so a production
 build renders zero article pages. The blocker is first-hand material, not
 build work. See `CONTENT_README.md`.

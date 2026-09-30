@@ -13,7 +13,7 @@ to surface "last AI prompt" per project. Keep entries append-only.
 
 > Created project skeleton. Stack chosen, scaffolding written, git initialized.
 
-## 2026-09-19 — v1.A: SEO-ready content platform for the first 10 articles
+## 2026-09-19 — v1.B: SEO-ready content platform for the first 10 articles
 
 > Finish the SEO-ready content pages for the site's first 10 articles, using
 > Astro static pages deployed to Cloudflare. Inspect first and propose a plan;
