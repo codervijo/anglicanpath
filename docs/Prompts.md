@@ -61,3 +61,15 @@ Next steps are consolidated in `docs/prd.md` § 7.
 Operator decisions: placed as v1.E (content phases renumbered v1.F–v1.I);
 contact email `hello@anglicanpath.org` (needs Email Routing). Sample parish
 detail pages removed from the production build; finder noindexed.
+
+## 2026-09-30 — v2 replanned as draft preview; content → v3, identity → v4, global → v5
+
+> Add a feature flag to read draft docs from the live site; plan it, earliest
+> slot. Then: make it the entire v2 and push the old v2 down; move the
+> remaining content phases to v3.
+
+Decisions: separate preview deploy (`drafts.anglicanpath.org`, `SHOW_DRAFTS=1`,
+Cloudflare Access), never drafts in production; audience = operator + invited
+clergy reviewers. Tiers now v2 draft preview (v2.A–C), v3 the full library
+(v3.A–E, formerly v1.F–v1.I), v4 visual identity, v5 global Anglicanism.
+Earlier entries above use the old numbering.
