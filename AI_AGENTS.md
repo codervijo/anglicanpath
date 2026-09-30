@@ -104,9 +104,10 @@ Page types: long-form explainer and comparison articles; guided reading paths (E
 
 ### Post-deploy checklist (do these once after the first successful deploy)
 
-- [ ] Verify in **Google Search Console** at https://search.google.com/search-console — add as `sc-domain:anglicanpath.org` property; verify via DNS TXT record. Until this is done, no SEO traffic data is observable for this site (and the workspace-wide `30 commercial sites with traffic` goal can't credit it).
-- [ ] Submit the sitemap (`https://anglicanpath.org/sitemap-index.xml` — the apex host; `@astrojs/sitemap` emits `-index`, not `/sitemap.xml`) inside GSC. *(The deploy pipeline auto-submits the robots.txt-declared sitemap; this is the manual fallback.)*
-- [ ] Update the **Live URL** above with the actual deploy URL.
+- [x] Verify in **Google Search Console** — `sc-domain:anglicanpath.org` exists and is verified `siteOwner`. Confirmed 2026-09-29 via `portfolio settings gsc status`.
+- [x] Submit the sitemap (`https://anglicanpath.org/sitemap-index.xml` — the apex host; `@astrojs/sitemap` emits `-index`, not `/sitemap.xml`). Submitted and force re-fetched 2026-09-29 via `portfolio settings gsc submit-sitemap --site anglicanpath.org --force`; 21 URLs, status OK.
+- [ ] **Fix `www` → apex.** `https://www.anglicanpath.org/` returns **522**, not a 308 to the apex. CHECK_150 requires the redirect. Needs a Cloudflare DNS record / Worker route for the `www` hostname.
+- [x] Update the **Live URL** above with the actual deploy URL — https://anglicanpath.org/ is serving.
 - [ ] Run `make run ARGS="cleanup"` from `sites/portfolio/` so `data/portfolio.json` reflects the new project's state (and `project status anglicanpath.org` resolves cleanly).
 
 ## How to run

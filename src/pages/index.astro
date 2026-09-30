@@ -12,7 +12,7 @@ const paths = await visiblePaths();
 
 const site = "https://anglicanpath.org";
 const title = "Anglican Path — Discover, Find, Pray";
-const description = "Discover the Anglican faith, find a traditional Anglican parish, and pray the Daily Office.";
+const description = "Discover the Anglican faith through source-backed guides, find a traditional ACNA or Continuing parish near you, and pray the Daily Office.";
 // Canonical MUST match the served URL incl. trailing slash (trailingSlash:
 // 'always' in astro.config.mjs). For a sub-page, derive it the same way:
 //   const canonical = `${site}/<route>/`;   // e.g. `${site}/about/`
@@ -34,6 +34,7 @@ const entries = [
   <Fragment slot="head">
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" href="/favicon.ico" type="image/x-icon" />
@@ -43,10 +44,15 @@ const entries = [
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content="https://anglicanpath.org/og-default.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Anglican Path" />
     <meta property="og:site_name" content="Anglican Path" />
 
     <!-- Twitter card -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://anglicanpath.org/og-default.png" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
 
