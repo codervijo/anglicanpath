@@ -1,5 +1,10 @@
 ---
 // Ported from genai/src/routes/find-a-parish.$parishId.tsx.
+//
+// Every parish in src/data/parishes.ts is invented sample data. Detail pages
+// are built in `astro dev` only: a production page for a parish that does not
+// exist — with a "Verified by parish" badge — is worse than no page. Real
+// listings replace the sample data before this returns to production.
 import type { GetStaticPaths } from "astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SeoHead from "../../components/SeoHead.astro";
@@ -9,14 +14,14 @@ import UpdateDialog from "../../components/parish/UpdateDialog.tsx";
 import { parishes } from "../../data/parishes";
 
 export const getStaticPaths: GetStaticPaths = () =>
-  parishes.map(parish => ({ params: { parishId: parish.id }, props: { parish } }));
+  (import.meta.env.DEV ? parishes : []).map(parish => ({ params: { parishId: parish.id }, props: { parish } }));
 
 const { parish } = Astro.props;
 const title = `${parish.name} — Anglican Path`;
 const description = `Fictitious sample parish detail for ${parish.city}.`;
 ---
 <BaseLayout>
-  <SeoHead slot="head" title={title} description={description} path={`/find-a-parish/${parish.id}/`} />
+  <SeoHead slot="head" title={title} description={description} path={`/find-a-parish/${parish.id}/`} noindex />
   <main>
     <div class="mx-auto max-w-5xl px-5 py-12 sm:px-8">
       <a href="/find-a-parish/" class="text-sm text-primary">← Back to parish finder</a>

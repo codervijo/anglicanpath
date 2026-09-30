@@ -16,8 +16,9 @@ interface Props {
   /** Site-relative path to a page-specific social image. Falls back to the
    *  site-wide default placeholder in public/og-default.png. */
   ogImage?: string;
-  /** Set on pages that are built but must stay out of the index (404, and
-   *  any draft page that ever gets built — see src/pages/learn/[slug].astro). */
+  /** Set on pages that are built but must stay out of the index: 404, any
+   *  page still carrying a placeholder (src/lib/placeholders.js), and sample
+   *  data. astro.config.mjs drops noindex pages from the sitemap. */
   noindex?: boolean;
   /** ISO date string; emitted as article:modified_time on article pages. */
   modifiedTime?: string;
@@ -42,7 +43,7 @@ const ogImageUrl = `${SITE_URL}${ogImage}`;
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
-{noindex && <meta name="robots" content="noindex, nofollow" />}
+{noindex && <meta name="robots" content="noindex, follow" />}
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="alternate icon" href="/favicon.ico" type="image/x-icon" />
 
