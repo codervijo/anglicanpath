@@ -57,7 +57,16 @@ const learn = defineCollection({
       'jurisdictions',
       'music',
     ]),
-    status: z.enum(['draft', 'review', 'published']).default('draft'),
+    /**
+     * Page lifecycle. See docs/architecture.md § 2.
+     *   draft        — being written; not built for production
+     *   fact-checked — every claim sourced, no placeholders; not yet live
+     *   published    — LIVE. Accurate, but no priest has endorsed it
+     *   reviewed     — LIVE. A named priest has read and signed off
+     * Publication is gated on accuracy; theological endorsement follows.
+     */
+    status: z.enum(['draft', 'fact-checked', 'published', 'reviewed']).default('draft'),
+    /** Required to reach `reviewed`, and only then. Never filled speculatively. */
     reviewer: reviewer.nullable().default(null),
     reviewedDate: z.coerce.date().nullable().default(null),
     updatedDate: z.coerce.date(),
@@ -88,7 +97,8 @@ const paths = defineCollection({
     cta: z
       .object({ label: z.string(), href: z.string() })
       .default({ label: 'Find a parish near you', href: '/find-a-parish/' }),
-    status: z.enum(['draft', 'review', 'published']).default('draft'),
+    /** Same lifecycle as `learn`; paths carry no reviewer. */
+    status: z.enum(['draft', 'fact-checked', 'published', 'reviewed']).default('draft'),
     updatedDate: z.coerce.date(),
     proposed: z.boolean().default(true),
   }),

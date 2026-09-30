@@ -38,41 +38,56 @@ you.
 
 ---
 
-## Draft → review → published
+## The page lifecycle
 
-This is the **page lifecycle** — the states a page moves through and what
-each means for the live site. `status:` in frontmatter controls it.
-The design rationale, the full state diagram and the planned four-state
-version live in `docs/architecture.md` § 2.
+The states a page moves through and what each means for the live site.
+`status:` in frontmatter controls it. Design rationale and the full state
+diagram: `docs/architecture.md` § 2.
 
-| status | Built in `astro dev` | Built for production | In the sitemap | Gate |
+```
+draft ──▶ fact-checked ──▶ published ──▶ reviewed
+                            (LIVE)        (LIVE)
+```
+
+| status | In `astro dev` | Built for production | In sitemap | Gate |
 |---|---|---|---|---|
-| `draft` | yes | **no** | no | warns |
-| `review` | yes | **no** | no | warns |
-| `published` | yes | yes | yes | **fails the build on any problem** |
+| `draft` | yes | no | no | warns |
+| `fact-checked` | yes | no | no | warns |
+| `published` | yes | **yes** | yes | **fails the build on any problem** |
+| `reviewed` | yes | **yes** | yes | **fails**, and also needs a reviewer |
 
-Unpublished pages are not built for production at all — there is no
-placeholder page to leak and no `noindex` tag to forget. The trade-off is
-that **a published article cannot link to an unpublished one**: the gate
-reports that as a broken internal link. Publish the two pillar articles
-(`anglican-vs-catholic`, `what-is-the-anglican-church`) first; every other
-article is required to link to one of them.
+**Accuracy gates publication; clergy review comes after.** A page goes
+live once every claim is sourced and checked. A `published` page carries
+"Sourced and fact-checked; not yet reviewed by clergy" in the byline, and
+swaps to "Reviewed by …" when it reaches `reviewed`.
 
-### To publish an article
+Unpublished pages are not built for production at all — no placeholder
+page to leak, no `noindex` tag to forget. The trade-off: **a live article
+cannot link to a non-live one**; the gate reports that as a broken
+internal link. Every article must also link to `anglican-vs-catholic` or
+`what-is-the-anglican-church`, so get one of those live first.
+
+### To take a page live
 
 1. Replace every `{/* DRAFT: ... */}` with prose.
-2. Place at least **two** contextual internal links in the body. The
-   proposed ones are listed in frontmatter under `proposedLinks` and shown
-   in the dev-only editorial panel on the page itself.
+2. Place at least **two** contextual internal links in the body, pointing
+   at pages that are already live. Suggestions are in `proposedLinks` and
+   in the dev-only editorial panel.
 3. Fill every cell of any `<ComparisonTable>` — replace each `null`.
 4. Write every `faq` answer, or delete the entries you don't want.
    Placeholder answers are never emitted as FAQPage structured data.
-5. Add `sources` (below).
-6. Add a `reviewer` and `reviewedDate` (below).
-7. Set `proposed: false` — this is your sign-off that the title,
-   description and keywords are yours, not Claude's.
-8. Set `status: published`.
-9. `pnpm build`. If the gate complains, it is right.
+5. Add `sources` (below). This is the one that does the real work.
+6. Set `proposed: false` — your sign-off that the title, description and
+   keywords are yours, not Claude's.
+7. Set `status: fact-checked`, then `published` when you want it live.
+8. `pnpm build`. If the gate complains, it is right.
+
+### To mark a page clergy-reviewed
+
+Once a named priest has read the live page: add `reviewer` and
+`reviewedDate` (below) and set `status: reviewed`. Setting a reviewer
+without moving to `reviewed` fails the build, and so does `reviewed`
+without one.
 
 ---
 
@@ -85,8 +100,9 @@ reviewer:
 reviewedDate: 2026-10-04
 ```
 
-Both are required to publish. They render as a
-"Reviewed by … on …" line under the summary, and as `reviewedBy` in the
+Required only to reach `reviewed` — they do **not** gate publication.
+They render as a "Reviewed by … on …" line under the summary, replacing
+the "not yet reviewed by clergy" notice, and as `reviewedBy` in the
 Article structured data. Leave them `null` until a named person has
 actually read the finished article — never fill them speculatively.
 
@@ -119,8 +135,8 @@ Defined and validated in `src/content.config.ts`.
 | `secondaryKeywords` | Variants the outline should cover. |
 | `searchIntent` | `informational` · `comparison` · `navigational` |
 | `topic` | `basics` · `comparisons` · `prayer-book` · `sacraments` · `history` · `jurisdictions` · `music` |
-| `status` | `draft` · `review` · `published` |
-| `reviewer` / `reviewedDate` | See above. |
+| `status` | `draft` · `fact-checked` · `published` · `reviewed` — see the page lifecycle above |
+| `reviewer` / `reviewedDate` | Required for `reviewed` only. See above. |
 | `updatedDate` | Bump when you meaningfully revise. Drives `dateModified`. |
 | `sources` | See above. |
 | `related` | Slugs; render as "Related questions". |
@@ -220,9 +236,9 @@ publish a `dist/` built that way.
 
 ## What the gate checks
 
-Fails the build for a `published` page, warns for `draft` / `review`:
+Fails the build for a live page (`published` or `reviewed`), warns for
+`draft` / `fact-checked`:
 
-- reviewer or reviewedDate missing
 - `sources` empty
 - description outside 120–160, or title over 65
 - more than one `<h1>` in the rendered page
@@ -232,6 +248,8 @@ Fails the build for a `published` page, warns for `draft` / `review`:
 - `slug` disagrees with the filename
 - `related` / `paths` / `steps` pointing at a slug that doesn't exist
 - no link to either pillar article
+- `reviewed` without a reviewer or `reviewedDate`, or a reviewer set on a
+  page that is not `reviewed`
 
 Broken internal links fail the build always, whatever the status — if it
 is in `dist/`, it shipped.

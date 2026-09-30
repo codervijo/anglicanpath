@@ -33,11 +33,6 @@ decision on the content side: it determines what can reach a reader and
 what blocks a deploy. Where this document, `CONTENT_README.md` or a
 commit message says "page lifecycle", it means this section.
 
-> **Status: `draft` / `review` / `published` is what ships today.** The
-> four-state lifecycle below is the v1.C target (see `docs/prd.md` § 5)
-> and is not yet implemented. Until it lands, a named reviewer gates
-> publication rather than the `reviewed` state.
-
 ### 2.1 States
 
 ```

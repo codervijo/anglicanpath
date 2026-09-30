@@ -198,6 +198,13 @@ html { scroll-behavior: smooth; }
    mistake for finished copy at a glance. The build gate blocks any published
    page that still renders one. Contrast against --secondary clears WCAG AA in
    both themes. */
+/* "not yet reviewed by clergy" byline. Muted, not alarming — the page is
+   accurate, it simply has not been endorsed. Contrast checked in both themes. */
+.await-review {
+  border-bottom: 1px dotted var(--color-border);
+  color: var(--color-muted-foreground);
+}
+
 .draft-cell {
   display: inline-block;
   border: 1px dashed var(--color-primary);

@@ -12,7 +12,7 @@ import SourcesList from "../../components/site/SourcesList.astro";
 import DraftNotice from "../../components/site/DraftNotice.astro";
 import ComparisonTable from "../../components/site/ComparisonTable.astro";
 import Button from "../../components/ui/Button.astro";
-import { learnHref, resolveLearn, visibleLearn, SHOW_UNPUBLISHED } from "../../lib/content";
+import { learnHref, resolveLearn, visibleLearn, isLive, SHOW_UNPUBLISHED } from "../../lib/content";
 import { topicLabel, readingTime } from "../../lib/taxonomy";
 import { articleLd, breadcrumbLd, faqLd, isAnsweredFaq, type Crumb } from "../../lib/jsonld";
 
@@ -50,7 +50,7 @@ const ld = [
 ].filter(Boolean);
 
 const dateFmt = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
-const isDraft = d.status !== "published";
+const isDraft = !isLive(entry);
 
 // Sections the layout appends after the MDX body. render() only reports
 // headings it found in the markdown, so these are handed to the TOC by hand —
@@ -82,12 +82,21 @@ const extraHeadings = [
         <h1 class="mt-3 max-w-4xl font-display text-4xl font-semibold leading-tight sm:text-6xl">{d.title}</h1>
         <p class="mt-6 max-w-3xl text-xl leading-8 text-muted-foreground">{d.description}</p>
         <p class="mt-7 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-          {d.reviewer && d.reviewedDate && (
+          {/* Page lifecycle (docs/architecture.md § 2): a page goes live once it
+              is accurate, and a named priest signs off afterwards. A reader
+              must be able to tell which of the two they are looking at, so the
+              byline states it either way rather than going quiet. */}
+          {d.status === "reviewed" && d.reviewer && d.reviewedDate ? (
             <>
               <span>Reviewed by {d.reviewer.name}, {d.reviewer.title} on {dateFmt.format(d.reviewedDate)}</span>
               <span aria-hidden="true" class="text-border">·</span>
             </>
-          )}
+          ) : d.status === "published" ? (
+            <>
+              <span class="await-review">Sourced and fact-checked; not yet reviewed by clergy</span>
+              <span aria-hidden="true" class="text-border">·</span>
+            </>
+          ) : null}
           <span>Updated {dateFmt.format(d.updatedDate)}</span>
           <span aria-hidden="true" class="text-border">·</span>
           <span>{minutes} min read</span>

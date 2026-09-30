@@ -14,7 +14,7 @@ import SeoHead from "../../components/SeoHead.astro";
 import Breadcrumbs from "../../components/site/Breadcrumbs.astro";
 import Button from "../../components/ui/Button.astro";
 import Icon from "../../components/Icon.astro";
-import { learnHref, visibleLearn, visiblePaths } from "../../lib/content";
+import { learnHref, isLive, visibleLearn, visiblePaths } from "../../lib/content";
 import { readingTime } from "../../lib/taxonomy";
 import { breadcrumbLd, type Crumb } from "../../lib/jsonld";
 
@@ -47,7 +47,7 @@ const crumbs: Crumb[] = [
   { name: "Paths", path: "/paths/" },
   { name: d.title, path },
 ];
-const isDraft = d.status !== "published";
+const isDraft = !isLive(entry);
 ---
 <BaseLayout>
   <Fragment slot="head">

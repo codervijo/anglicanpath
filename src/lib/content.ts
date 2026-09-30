@@ -1,7 +1,7 @@
 // Visibility rules for editorial content.
 //
-// Draft and review pages are built in `astro dev` only. In a production build
-// they are not rendered at all, which means:
+// `draft` and `fact-checked` pages are built in `astro dev` only. In a
+// production build they are not rendered at all, which means:
 //   - they cannot be reached, so there is no placeholder page to leak;
 //   - @astrojs/sitemap never sees them, so the sitemap needs no filtering;
 //   - no `noindex` tag to maintain or forget.
@@ -17,8 +17,14 @@ export const SHOW_UNPUBLISHED = import.meta.env.DEV;
 
 type Editorial = CollectionEntry<'learn'> | CollectionEntry<'paths'>;
 
+/** The page-lifecycle states that are live. See docs/architecture.md § 2. */
+export const LIVE_STATES = ['published', 'reviewed'] as const;
+
+export const isLive = (entry: Editorial): boolean =>
+  (LIVE_STATES as readonly string[]).includes(entry.data.status);
+
 export const isVisible = (entry: Editorial): boolean =>
-  entry.data.status === 'published' || SHOW_UNPUBLISHED;
+  isLive(entry) || SHOW_UNPUBLISHED;
 
 export async function visibleLearn(): Promise<CollectionEntry<'learn'>[]> {
   const all = await getCollection('learn');
